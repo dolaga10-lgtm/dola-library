@@ -1,6 +1,6 @@
 {
   "users": [
-    {"username": "koko", "password": "222", "expiry_date": "2026-12-31", "hwid": "1234"},
+    {"username": "koko", "password": "222", "expiry_date": "2026-12-31", "hwid": "DOLA-D7688EF1AE85"},
     {"username": "client02", "password": "PassWord@02", "expiry_date": "2026-12-31", "hwid": ""},
     {"username": "client03", "password": "PassWord@03", "expiry_date": "2026-12-31", "hwid": ""},
     {"username": "client04", "password": "PassWord@04", "expiry_date": "2026-12-31", "hwid": ""},
