@@ -1,6 +1,6 @@
 {
   "users": [
-    { "username": "koko", "pass": "2009", "expire": "2026-10-30", "fingerprint": "FP-39EF086-1891x10641" },
+    { "username": "koko", "pass": "2009", "expire": "2026-10-30", "fingerprint": "FP-4239D715-541C5D45" },
     { "username": "محمود", "pass": "1002", "expire": "2026-11-15", "fingerprint": "" },
     { "username": "user03", "pass": "3003", "expire": "2026-12-31", "fingerprint": "" },
     { "username": "user04", "pass": "4004", "expire": "2026-12-31", "fingerprint": "" },
