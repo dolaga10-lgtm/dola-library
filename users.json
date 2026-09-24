@@ -1,6 +1,6 @@
 {
   "users": [
-    {"username": "kokoo", "pass": "2020", "expire": "2027-01-01", "fingerprint": "FP-4239D715-541C5D45"},
+    {"username": "kokoo", "pass": "2020", "expire": "2027-01-01", "fingerprint": "FP-39EF086-8628531"},
     {"username": "dola_user1", "pass": "pass@1001", "expire": "2026-10-15", "fingerprint": ""},
     {"username": "dola_user2", "pass": "pass@1002", "expire": "2026-11-20", "fingerprint": ""},
     {"username": "dola_user3", "pass": "pass@1003", "expire": "2026-12-01", "fingerprint": ""},
