@@ -1,34 +1,20 @@
-{
-  "users": [
-    {"username": "koko", "password": "222", "expiry_date": "2026-12-31", "hwid": "D7688EF1AE85"},
-    {"username": "client02", "password": "PassWord@02", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client03", "password": "PassWord@03", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client04", "password": "PassWord@04", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client05", "password": "PassWord@05", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client06", "password": "PassWord@06", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client07", "password": "PassWord@07", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client08", "password": "PassWord@08", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client09", "password": "PassWord@09", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client10", "password": "PassWord@10", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client11", "password": "PassWord@11", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client12", "password": "PassWord@12", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client13", "password": "PassWord@13", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client14", "password": "PassWord@14", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client15", "password": "PassWord@15", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client16", "password": "PassWord@16", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client17", "password": "PassWord@17", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client18", "password": "PassWord@18", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client19", "password": "PassWord@19", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client20", "password": "PassWord@20", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client21", "password": "PassWord@21", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client22", "password": "PassWord@22", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client23", "password": "PassWord@23", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client24", "password": "PassWord@24", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client25", "password": "PassWord@25", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client26", "password": "PassWord@26", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client27", "password": "PassWord@27", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client28", "password": "PassWord@28", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client29", "password": "PassWord@29", "expiry_date": "2026-12-31", "hwid": ""},
-    {"username": "client30", "password": "PassWord@30", "expiry_date": "2026-12-31", "hwid": ""}
-  ]
-}
+[
+  {
+    "username": "koko",
+    "license": "2026",
+    "hwid": "",
+    "expiry": "2027-12-31"
+  },
+  {
+    "username": "client_mohamed",
+    "license": "MOHAMED-1234-ABCD",
+    "hwid": "ضع_بصمة_الجهاز_هنا_عندما_يطلبها_المستخدم",
+    "expiry": "2026-12-31"
+  },
+  {
+    "username": "client_ahmed",
+    "license": "AHMED-5678-EFGH",
+    "hwid": "",
+    "expiry": "2026-10-15"
+  }
+]
