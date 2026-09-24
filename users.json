@@ -1,6 +1,6 @@
 {
   "users": [
-    { "username": "koko", "pass": "2026", "expire": "2027-12-31", "hwid": "" },
+    { "username": "koko", "pass": "2026", "expire": "2027-12-31", "hwid": "غير معروف" },
     { "username": "ضع اسم العميل 2", "pass": "1002", "expire": "2026-12-31", "hwid": "" },
     { "username": "ضع اسم العميل 3", "pass": "1003", "expire": "2026-12-31", "hwid": "" },
     { "username": "ضع اسم العميل 4", "pass": "1004", "expire": "2026-12-31", "hwid": "" },
