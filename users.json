@@ -1,20 +1,9 @@
-[
-  {
-    "username": "koko",
-    "license": "2026",
-    "hwid": "",
-    "expiry": "2027-12-31"
-  },
-  {
-    "username": "client_mohamed",
-    "license": "MOHAMED-1234-ABCD",
-    "hwid": "ضع_بصمة_الجهاز_هنا_عندما_يطلبها_المستخدم",
-    "expiry": "2026-12-31"
-  },
-  {
-    "username": "client_ahmed",
-    "license": "AHMED-5678-EFGH",
-    "hwid": "",
-    "expiry": "2026-10-15"
-  }
-]
+{
+  "users": [
+    { "username": "koko", "pass": "2030", "expire": "2026-10-30" },
+    { "username": "محمود", "pass": "1002", "expire": "2026-11-15" },
+    { "username": "مصطفى", "pass": "1003", "expire": "2026-12-01" },
+    { "username": "عميل_4", "pass": "1004", "expire": "2026-10-24" },
+    { "username": "عميل_5", "pass": "1005", "expire": "2026-10-24" }
+  ]
+}
