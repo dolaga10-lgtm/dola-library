@@ -1,10 +1,9 @@
 {
   "users": [
-    {
-      "username": "AboAbdo",
-      "pass": "123456",
-      "expire": "2026-12-31",
-      "device_fp": "FP-XYZ123..." 
-    }
+    { "username": "kokoo", "pass": "2009", "expire": "2026-10-30" },
+    { "username": "محمود", "pass": "1002", "expire": "2026-11-15" },
+    { "username": "مصطفى", "pass": "1003", "expire": "2026-12-01" },
+    { "username": "عميل_4", "pass": "1004", "expire": "2026-10-24" },
+    { "username": "عميل_5", "pass": "1005", "expire": "2026-10-24" }
   ]
 }
