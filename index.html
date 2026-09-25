@@ -17,7 +17,6 @@
             overflow-x: hidden;
         }
 
-        /* خلفية التناثر الذهبي التفاعلية */
         #goldCanvas {
             position: fixed;
             top: 0; left: 0;
@@ -71,7 +70,6 @@
 
         #progressWrapper { display: none; width: 240px; text-align: center; }
         
-        /* تعديل تصميم شريط التقدم */
         progress { 
             -webkit-appearance: none;
             appearance: none;
@@ -90,7 +88,6 @@
             text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
         }
 
-        /* شريط الاشتراك الافتراضي (الذهبي الفاخر) */
         .subscription-banner {
             background: linear-gradient(90deg, rgba(212, 163, 115, 0.2) 0%, rgba(255, 215, 0, 0.25) 50%, rgba(212, 163, 115, 0.2) 100%);
             border-bottom: 1px solid rgba(255, 215, 0, 0.4); padding: 9px 18px;
@@ -109,7 +106,6 @@
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
         }
 
-        /* حالة التحذير عند اقتراب انتهاء الاشتراك (اللون الأحمر) */
         .subscription-banner.warning-red {
             background: linear-gradient(90deg, rgba(239, 68, 68, 0.25) 0%, rgba(220, 38, 38, 0.35) 50%, rgba(239, 68, 68, 0.25) 100%);
             border-bottom: 1px solid rgba(239, 68, 68, 0.6);
@@ -172,7 +168,6 @@
         .sidebar { width: 210px; background: rgba(30, 41, 59, 0.85); border-left: 1px solid rgba(255, 215, 0, 0.25); padding: 20px 12px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; backdrop-filter: blur(10px); }
         .sidebar h3 { font-size: 14px; color: #ffd700; margin: 0 0 12px 0; border-bottom: 2px solid rgba(255, 215, 0, 0.3); padding-bottom: 8px; text-align: center; text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
         
-        /* زر الأقسام بالأيقونات البارزة */
         .tab-btn { 
             background: rgba(255, 255, 255, 0.03); 
             border: 1px solid rgba(255, 255, 255, 0.08); 
@@ -221,7 +216,6 @@
         .category-section.active { display: block; }
         .badge { background: rgba(255, 215, 0, 0.1); color: #ffd700; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; border: 1px solid rgba(255, 215, 0, 0.4); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
         
-        /* الكارت التفاعلي البروز والهالة ثلاثية الأبعاد */
         .card { 
             background: rgba(30, 41, 59, 0.75); 
             border-radius: 14px; 
@@ -296,7 +290,6 @@
 </head>
 <body>
 
-    <!-- خلفية التناثر الذهبي -->
     <canvas id="goldCanvas"></canvas>
 
     <div id="subscriptionBanner" class="subscription-banner" style="display: none;">
@@ -384,7 +377,6 @@
     </div>
 
     <script>
-        // ==================== محرك التناثر الذهبي التفاعلي (Canvas Engine) ====================
         const canvas = document.getElementById('goldCanvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -452,12 +444,9 @@
             requestAnimationFrame(animateParticles);
         }
         animateParticles();
-        // ======================================================================================
 
         let globalComponentsList = [];
-        let missingFilesList = [];
         let hardwareFingerprint = "";
-        let isCheckingStatus = false;
 
         function getSkpUrl(filename) { return `https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/${encodeURIComponent(filename)}.skp`; }
         function getImgUrl(filename) { return `https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/images/${encodeURIComponent(filename)}.png`; }
@@ -482,12 +471,9 @@
                     const data = await response.json();
                     globalComponentsList = data.components || [];
                     renderAllComponents(globalComponentsList);
-                    checkOfflineFilesStatus(false);
                 }
             } catch (error) {
-                const btn = document.getElementById('syncBtn');
-                btn.innerText = "⚡ العمل في وضع أوفلاين";
-                btn.disabled = false;
+                console.log("Offline mode or network issue.");
             }
         }
 
@@ -531,83 +517,40 @@
             });
         }
 
-        function checkOfflineFilesStatus(isUserTriggered = false) {
-            if (!window.sketchup || !window.sketchup.check_missing_files) return;
-
-            if (globalComponentsList.length === 0) {
-                if (isUserTriggered) {
-                    const btn = document.getElementById('syncBtn');
-                    btn.innerText = "⏳ جاري تحميل قائمة الوحدات...";
-                }
-                return;
-            }
-
-            if (isCheckingStatus) return;
-            isCheckingStatus = true;
-
-            const btn = document.getElementById('syncBtn');
-            if (isUserTriggered) {
-                btn.innerText = "🔍 جاري فحص الملفات المخزنة...";
-                btn.disabled = true;
-            }
-
-            let urlsToCheck = [];
-            
-            // إضافة ملف components.json مع بقية الملفات لضمان الحفظ المكتمل
-            urlsToCheck.push("https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/components.json");
-
-            globalComponentsList.forEach(item => {
-                if (!item.hidden) {
-                    urlsToCheck.push(getSkpUrl(item.name));
-                    urlsToCheck.push(getImgUrl(item.name));
-                }
-            });
-
-            window.sketchup.check_missing_files(JSON.stringify(urlsToCheck));
-        }
-
-        function onMissingFilesResult(missingUrls) {
-            isCheckingStatus = false;
-            missingFilesList = missingUrls || [];
-            const btn = document.getElementById('syncBtn');
-
-            if (missingFilesList.length === 0) {
-                btn.innerText = '✅ جميع الوحدات متوفرة أوفلاين';
-                btn.style.background = '#22c55e';
-                btn.style.color = '#fff';
-                btn.disabled = false;
-            } else {
-                btn.innerText = `📥 تنزيل المكتبة أوفلاين (${missingFilesList.length} ملف ناقص)`;
-                btn.style.background = 'linear-gradient(135deg, #ffe066 0%, #ffd700 50%, #b8860b 100%)';
-                btn.style.color = '#111827';
-                btn.disabled = false;
-            }
-        }
-
+        // ==================== دالة التنزيل المباشرة المعدلة ====================
         function downloadAllComponentsOffline() {
             const btn = document.getElementById('syncBtn');
             const wrapper = document.getElementById('progressWrapper');
             const progressBar = document.getElementById('syncProgress');
             const progressText = document.getElementById('progressText');
 
-            if (globalComponentsList.length === 0) {
-                btn.innerText = "⏳ جاري جلب البيانات...";
-                loadComponents().then(() => checkOfflineFilesStatus(true));
+            if (!globalComponentsList || globalComponentsList.length === 0) {
+                alert("جاري جلب القائمة من السيرفر، يرجى الانتظار ثوانٍ ثم الضغط مرة أخرى.");
+                loadComponents();
                 return;
             }
 
-            if (missingFilesList.length === 0) {
-                checkOfflineFilesStatus(true);
-                return;
-            }
+            let urlsToDownload = [];
+            urlsToDownload.push("https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/components.json");
 
-            progressBar.value = 0;
-            progressText.innerText = `0% (تم تحميل 0 من ${missingFilesList.length})`;
-            wrapper.style.display = 'block';
+            globalComponentsList.forEach(item => {
+                if (!item.hidden) {
+                    urlsToDownload.push(getSkpUrl(item.name));
+                    urlsToDownload.push(getImgUrl(item.name));
+                }
+            });
+
             btn.style.display = 'none';
+            wrapper.style.display = 'block';
+            progressBar.value = 0;
+            progressText.innerText = `0% (جاري بدء التحميل لأصل ${urlsToDownload.length} ملف...)`;
 
             if (window.sketchup && window.sketchup.start_offline_download) {
-                window.sketchup.start_offline_download(JSON.stringify(missingFilesList));
+                window.sketchup.start_offline_download(JSON.stringify(urlsToDownload));
+            } else {
+                alert("عفواً، لم يتم الاتصال بروبي ببرنامج سكتش أب بشكل صحيح.");
+                wrapper.style.display = 'none';
+                btn.style.display = 'inline-block';
             }
         }
 
@@ -628,7 +571,9 @@
             setTimeout(() => {
                 wrapper.style.display = 'none';
                 btn.style.display = 'inline-block';
-                checkOfflineFilesStatus(true);
+                btn.innerText = '✅ جميع الوحدات متوفرة أوفلاين';
+                btn.style.background = '#22c55e';
+                btn.style.color = '#fff';
             }, 2500);
         }
 
