@@ -54,13 +54,21 @@
     { "name": "دولاب ركنه45(قايمه دواليب)", "cat": "tall" },
     { "name": "دولاب منظفات2ضلفه(قايمه دواليب)", "cat": "tall" },
     { "name": "دولاب منظفات1ضلفه(قايمه دواليب)", "cat": "tall" },
+    
     { "name": "ضع هنا الوحدات العلوية", "cat": "upper", "hidden": true },
+    
     { "name": "ضع هنا الوحدات السفلية", "cat": "base", "hidden": true },
+    
     { "name": "ضع هنا وحدات الركن", "cat": "corner", "hidden": true },
+    
     { "name": "ضع هنا وحدات الدواليب", "cat": "tall", "hidden": true },
+    
     { "name": "ضع هنا وحدات شاسيهات ووشوش", "cat": "frames", "hidden": true },
+    
     { "name": "ضع هنا وحدات تجاليد ومكملات", "cat": "cladding", "hidden": true },
+    
     { "name": "ضع هنا وحدات أجهزة كهربائية", "cat": "appliances", "hidden": true },
+    
     { "name": "ضع هنا وحدات اكسسوارات ديكور", "cat": "decor", "hidden": true }
   ]
 }
