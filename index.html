@@ -471,9 +471,50 @@
                     const data = await response.json();
                     globalComponentsList = data.components || [];
                     renderAllComponents(globalComponentsList);
+                    checkOfflineStatus();
                 }
             } catch (error) {
                 console.log("Offline mode or network issue.");
+            }
+        }
+
+        // يبني قائمة كل روابط الملفات (JSON + كل السكيتشات + كل الصور)
+        function buildOfflineUrlsList() {
+            let urlsToDownload = [];
+            urlsToDownload.push("https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/components.json");
+            globalComponentsList.forEach(item => {
+                if (!item.hidden) {
+                    urlsToDownload.push(getSkpUrl(item.name));
+                    urlsToDownload.push(getImgUrl(item.name));
+                }
+            });
+            return urlsToDownload;
+        }
+
+        // يسأل Ruby: كام ملف ناقص من الكاش حالياً؟ (بدون تحميل، مجرد فحص سريع)
+        function checkOfflineStatus() {
+            if (!globalComponentsList || globalComponentsList.length === 0) return;
+            const urls = buildOfflineUrlsList();
+            if (window.sketchup && window.sketchup.check_missing_count) {
+                window.sketchup.check_missing_count(JSON.stringify(urls));
+            }
+        }
+
+        // رد Ruby على السؤال أعلاه: يحدّث شكل الزرار حسب وجود ملفات جديدة أو لا
+        function onMissingCountResult(missingCount) {
+            const btn = document.getElementById('syncBtn');
+            if (!btn) return;
+            const wrapper = document.getElementById('progressWrapper');
+            if (wrapper && wrapper.style.display === 'block') return; // تحميل شغّال دلوقتي، متلمّعلوش الزرار
+
+            if (missingCount > 0) {
+                btn.innerText = `⬇️ تحميل ${missingCount} ملف جديد أوفلاين`;
+                btn.style.background = '';
+                btn.style.color = '';
+            } else {
+                btn.innerText = '✅ جميع الوحدات محفوظة أوفلاين';
+                btn.style.background = '#22c55e';
+                btn.style.color = '#fff';
             }
         }
 
@@ -530,20 +571,12 @@
                 return;
             }
 
-            let urlsToDownload = [];
-            urlsToDownload.push("https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/components.json");
-
-            globalComponentsList.forEach(item => {
-                if (!item.hidden) {
-                    urlsToDownload.push(getSkpUrl(item.name));
-                    urlsToDownload.push(getImgUrl(item.name));
-                }
-            });
+            const urlsToDownload = buildOfflineUrlsList();
 
             btn.style.display = 'none';
             wrapper.style.display = 'block';
             progressBar.value = 0;
-            progressText.innerText = `0% (جاري بدء التحميل لأصل ${urlsToDownload.length} ملف...)`;
+            progressText.innerText = `0% (جاري فحص الملفات الناقصة من أصل ${urlsToDownload.length} ملف...)`;
 
             if (window.sketchup && window.sketchup.start_offline_download) {
                 window.sketchup.start_offline_download(JSON.stringify(urlsToDownload));
@@ -575,9 +608,7 @@
             setTimeout(() => {
                 wrapper.style.display = 'none';
                 btn.style.display = 'inline-block';
-                btn.innerText = '✅ جميع الوحدات متوفرة أوفلاين';
-                btn.style.background = '#22c55e';
-                btn.style.color = '#fff';
+                checkOfflineStatus(); // يحدّث نص الزرار حسب الوضع الفعلي بعد التحميل
             }, 2500);
         }
 
