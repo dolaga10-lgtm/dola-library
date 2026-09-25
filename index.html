@@ -2,556 +2,221 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>مكتبة محمد عادل الذكية للمطابخ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معاينة الواجهة النهائية</title>
     <style>
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(135deg, #090d16 0%, #111827 50%, #1e1b4b 100%); 
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); 
             color: #f1f5f9; 
-            margin: 0; 
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            padding: 20px;
+            width: 480px;
+            margin: auto;
+            border-radius: 12px;
             user-select: none;
-            overflow-x: hidden;
+            min-height: 100vh;
         }
 
-        /* خلفية التناثر الذهبي التفاعلية */
-        #goldCanvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            pointer-events: none;
-            z-index: 1;
+        /* 1. شريط الاشتراك باللون الأحمر */
+        .subscription-banner {
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.25) 0%, rgba(220, 38, 38, 0.35) 50%, rgba(239, 68, 68, 0.25) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.6);
+            border-radius: 10px;
+            padding: 8px 15px;
+            display: flex; align-items: center; justify-content: space-between; 
+            font-size: 12px; color: #fca5a5; margin-bottom: 15px;
+        }
+        .banner-days { 
+            background: rgba(239, 68, 68, 0.35); border: 1px solid rgba(239, 68, 68, 0.7); 
+            padding: 2px 8px; border-radius: 10px; color: #fff; font-weight: bold;
         }
 
-        body, button, input, .tab-btn, .card { cursor: default; }
-
-        .subscription-banner, .app-container, .login-overlay {
-            position: relative;
-            z-index: 2;
+        /* 2. الهيدر وشريط التنزيل الأوفلاين */
+        .header { 
+            display: flex; align-items: center; justify-content: space-between; 
+            border-bottom: 2px solid rgba(255, 215, 0, 0.2); padding-bottom: 12px; margin-bottom: 15px; 
         }
+        h2 { margin: 0; color: #ffd700; font-size: 16px; }
 
         .offline-sync-box {
-            background: rgba(30, 41, 59, 0.85); 
-            border: 1px solid rgba(255, 215, 0, 0.4);
-            padding: 10px 15px; 
-            border-radius: 12px; 
-            display: flex; 
-            align-items: center; 
-            gap: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(255, 215, 0, 0.05);
-            backdrop-filter: blur(8px);
+            background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255, 215, 0, 0.3);
+            padding: 8px 12px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; gap: 6px;
         }
-
-        #syncBtn {
-            background: linear-gradient(135deg, #ffe066 0%, #ffd700 50%, #b8860b 100%); 
-            color: #111827;
-            border: none; 
-            padding: 8px 16px; 
-            border-radius: 8px; 
-            cursor: pointer;
-            font-weight: bold; 
-            font-size: 12px; 
-            font-family: inherit;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        .sync-btn {
+            background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%); color: #1e272e;
+            border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;
+            font-weight: bold; font-size: 11px; transition: opacity 0.2s;
         }
-        #syncBtn:hover:not(:disabled) {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.45), 0 0 15px rgba(255, 215, 0, 0.3);
-            filter: brightness(1.1);
-        }
-        #syncBtn:active:not(:disabled) {
-            transform: translateY(1px) scale(0.98);
-            box-shadow: 0 2px 6px rgba(255, 215, 0, 0.3);
-        }
-        #syncBtn:disabled { cursor: not-allowed; opacity: 0.85; }
-
-        #progressWrapper { display: none; width: 220px; }
-        progress { width: 100%; height: 12px; border-radius: 6px; overflow: hidden; border: none; }
+        .sync-btn:hover { opacity: 0.9; }
+        .progress-wrapper { width: 100%; text-align: center; }
+        progress { width: 100%; height: 10px; border-radius: 5px; border: none; overflow: hidden; }
         progress::-webkit-progress-bar { background-color: rgba(15, 23, 42, 0.8); }
         progress::-webkit-progress-value { background: linear-gradient(90deg, #22c55e, #16a34a); }
-        #progressText {
-            font-size: 11px; color: #ffd700; margin-top: 4px; display: block;
-            text-align: center; font-weight: bold; white-space: nowrap;
-            text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+        .progress-text { font-size: 10px; color: #ffd700; font-weight: bold; display: block; margin-top: 3px; }
+
+        /* 3. العناوين والأقسام */
+        .category-title {
+            color: #ffd700; font-size: 13px; margin: 15px 0 8px 0; border-right: 3px solid #ffd700; padding-right: 8px; font-weight: bold;
+        }
+        .cards-container {
+            display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;
         }
 
-        /* شريط الاشتراك الافتراضي (الذهبي الفاخر) */
-        .subscription-banner {
-            background: linear-gradient(90deg, rgba(212, 163, 115, 0.2) 0%, rgba(255, 215, 0, 0.25) 50%, rgba(212, 163, 115, 0.2) 100%);
-            border-bottom: 1px solid rgba(255, 215, 0, 0.4); padding: 9px 18px;
-            display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #ffd700;
-            transition: all 0.4s ease;
-            backdrop-filter: blur(10px);
-            text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
-        }
-        .banner-info { display: flex; align-items: center; gap: 8px; font-weight: 600; }
-        .banner-days { 
-            background: rgba(255, 215, 0, 0.2); 
-            border: 1px solid rgba(255, 215, 0, 0.5); 
-            padding: 3px 10px; 
-            border-radius: 12px; 
-            color: #fff;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-        }
-
-        /* حالة التحذير عند اقتراب انتهاء الاشتراك (اللون الأحمر) */
-        .subscription-banner.warning-red {
-            background: linear-gradient(90deg, rgba(239, 68, 68, 0.25) 0%, rgba(220, 38, 38, 0.35) 50%, rgba(239, 68, 68, 0.25) 100%);
-            border-bottom: 1px solid rgba(239, 68, 68, 0.6);
-            color: #fca5a5;
-            text-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
-        }
-        .subscription-banner.warning-red .banner-days {
-            background: rgba(239, 68, 68, 0.35);
-            border: 1px solid rgba(239, 68, 68, 0.7);
-            color: #ffffff;
-            box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
-        }
-
-        .app-container { display: flex; flex-grow: 1; height: calc(100vh - 38px); }
-
-        .login-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: radial-gradient(circle at center, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.96) 100%);
-            backdrop-filter: blur(15px); z-index: 99999; display: flex; align-items: center; justify-content: center;
-        }
-        .login-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-        .login-box {
-            background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
-            border: 1px solid rgba(255, 215, 0, 0.5); border-radius: 20px; padding: 35px; width: 360px; text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 30px rgba(255, 215, 0, 0.25);
-        }
-        .login-box h3 { margin: 0 0 8px 0; color: #ffd700; font-size: 22px; text-shadow: 0 0 12px rgba(255, 215, 0, 0.4); }
-        .login-box p { margin: 0 0 22px 0; color: #94a3b8; font-size: 13px; }
-        .input-group { margin-bottom: 16px; text-align: right; }
-        .input-group label { display: block; font-size: 12px; color: #ffd700; margin-bottom: 6px; font-weight: 600; }
-        .password-container { position: relative; display: flex; align-items: center; }
-        .password-container input { width: 100%; padding-left: 40px; }
-        .toggle-password { position: absolute; left: 10px; background: none; border: none; cursor: pointer; font-size: 16px; color: #ffd700; }
-        .input-group input { width: 100%; padding: 11px 14px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 10px; color: #fff; font-size: 13px; outline: none; }
-        .remember-me { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; font-size: 13px; color: #cbd5e1; cursor: pointer; }
-        
-        .login-btn { 
-            width: 100%; 
-            background: linear-gradient(135deg, #ffe066 0%, #ffd700 50%, #b8860b 100%); 
-            color: #111827; 
-            border: none; 
-            padding: 12px; 
-            border-radius: 10px; 
-            font-weight: bold; 
-            font-size: 14px; 
-            cursor: pointer; 
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
-        }
-        .login-btn:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
-        }
-        .login-btn:active {
-            transform: translateY(1px) scale(0.98);
-        }
-
-        .error-msg { color: #ef4444; font-size: 12px; margin-top: 12px; display: none; line-height: 1.5; }
-        
-        .sidebar { width: 210px; background: rgba(30, 41, 59, 0.85); border-left: 1px solid rgba(255, 215, 0, 0.25); padding: 20px 12px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; backdrop-filter: blur(10px); }
-        .sidebar h3 { font-size: 14px; color: #ffd700; margin: 0 0 12px 0; border-bottom: 2px solid rgba(255, 215, 0, 0.3); padding-bottom: 8px; text-align: center; text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
-        
-        /* زر الأقسام بالأيقونات البارزة */
-        .tab-btn { 
-            background: rgba(255, 255, 255, 0.03); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            color: #94a3b8; 
-            text-align: right; 
-            padding: 10px 14px; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            font-size: 13px; 
-            font-weight: 600; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .tab-btn span {
-            display: inline-block;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .tab-btn:hover {
-            border-color: rgba(255, 215, 0, 0.5);
-            color: #ffd700;
-            background: rgba(255, 215, 0, 0.08);
-            transform: translateX(-3px);
-        }
-        .tab-btn:hover span {
-            transform: scale(1.3) rotate(6deg);
-            filter: drop-shadow(0 0 8px #ffd700);
-        }
-        .tab-btn.active { 
-            background: linear-gradient(135deg, #ffe066 0%, #ffd700 50%, #b8860b 100%); 
-            color: #111827; 
-            font-weight: bold; 
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.35);
-        }
-        .tab-btn.active span {
-            transform: scale(1.25);
-            filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
-        }
-
-        .main-content { flex-grow: 1; padding: 22px; overflow-y: auto; }
-        .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid rgba(255, 215, 0, 0.25); padding-bottom: 15px; margin-bottom: 20px; }
-        h2 { margin: 0; color: #ffd700; font-size: 19px; text-shadow: 0 0 12px rgba(255, 215, 0, 0.35); }
-        .section-title { color: #ffd700; font-size: 16px; margin-top: 0; margin-bottom: 15px; border-bottom: 1px solid rgba(255, 215, 0, 0.2); padding-bottom: 8px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
-        .category-section { display: none; }
-        .category-section.active { display: block; }
-        .badge { background: rgba(255, 215, 0, 0.1); color: #ffd700; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; border: 1px solid rgba(255, 215, 0, 0.4); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
-        
-        /* الكارت التفاعلي البروز والهالة ثلاثية الأبعاد */
+        /* 4. كارت الوحدة */
         .card { 
-            background: rgba(30, 41, 59, 0.75); 
-            border-radius: 14px; 
-            padding: 12px 15px; 
-            margin-bottom: 12px; 
+            background: rgba(30, 41, 59, 0.7); 
+            border-radius: 12px; 
+            padding: 12px; 
             display: flex; 
             align-items: center; 
-            gap: 15px; 
+            gap: 12px; 
             border: 1px solid rgba(255, 215, 0, 0.2); 
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease;
         }
         .card:hover {
-            border-color: rgba(255, 215, 0, 0.8);
-            background: rgba(30, 41, 59, 0.9);
-            transform: translateY(-5px) scale(1.01);
-            box-shadow: 0 12px 25px -5px rgba(255, 215, 0, 0.25), 0 0 18px rgba(255, 215, 0, 0.2);
-        }
-        .card:active {
-            transform: translateY(-1px) scale(0.99);
-            box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+            border-color: #ffd700;
+            background: rgba(30, 41, 59, 0.95);
         }
         .card img { 
-            width: 85px; 
-            height: 85px; 
-            object-fit: cover; 
-            border-radius: 10px; 
-            flex-shrink: 0;
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            transition: transform 0.3s ease;
-        }
-        .card:hover img {
-            transform: scale(1.05);
-            border-color: #ffd700;
+            width: 75px; height: 75px; object-fit: cover; border-radius: 8px; flex-shrink: 0;
+            background: #0f172a;
         }
         .info { 
-            flex-grow: 1; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: flex-start; 
-            gap: 4px;
+            flex-grow: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
         }
-        .info h3 { margin: 0; font-size: 15px; color: #f8fafc; }
-        .info p { margin: 0 0 6px 0; font-size: 11px; color: #94a3b8; }
+        .info h3 { margin: 0; font-size: 14px; color: #f8fafc; }
+        .info p { margin: 0 0 4px 0; font-size: 11px; color: #94a3b8; }
         
         button.dl-btn { 
-            background: linear-gradient(135deg, #ffe066 0%, #ffd700 50%, #b8860b 100%); 
-            color: #111827; 
-            border: none; 
-            padding: 6px 14px; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 11px; 
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 3px 10px rgba(255, 215, 0, 0.25);
-        }
-        button.dl-btn:hover {
-            transform: translateY(-2px) scale(1.04);
-            box-shadow: 0 6px 18px rgba(255, 215, 0, 0.45);
-            filter: brightness(1.1);
-        }
-        button.dl-btn:active {
-            transform: translateY(1px) scale(0.96);
+            background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%); color: #1e272e; 
+            border: none; padding: 5px 12px; border-radius: 6px; cursor: pointer; 
+            font-weight: bold; font-size: 11px; display: inline-flex; align-items: center; gap: 5px;
         }
     </style>
 </head>
 <body>
 
-    <!-- خلفية التناثر الذهبي -->
-    <canvas id="goldCanvas"></canvas>
-
-    <div id="subscriptionBanner" class="subscription-banner" style="display: none;">
-        <div class="banner-info">
-            <span>✨ مرحباً بك! حالة اشتراكك:</span>
-            <span id="bannerUserText">نشط</span>
-        </div>
-        <div class="banner-info">
-            <span>⏳ الوقت المتبقي:</span>
-            <span id="bannerDaysCount" class="banner-days">-- أيام</span>
-        </div>
+    <!-- 1. شريط التنبيه -->
+    <div class="subscription-banner">
+        <div>✨ أهلاً بك م/ محمد عادل 👑</div>
+        <div class="banner-days">⚠️ باقي 5 أيام فقط!</div>
     </div>
 
-    <div id="loginOverlay" class="login-overlay">
-        <div class="login-box">
-            <h3>مكتبة محمد عادل</h3>
-            <p>الرجاء تسجيل الدخول للوصول للمكتبة</p>
+    <!-- 2. الهيدر وزر تنزيل المكتبة أوفلاين -->
+    <div class="header">
+        <h2>مكتبة المطابخ</h2>
+        
+        <div class="offline-sync-box">
+            <button id="syncBtn" class="sync-btn" onclick="downloadAllComponentsOffline()">تنزيل المكتبة للعمل بدون إنترنت 📥</button>
             
-            <div class="input-group">
-                <label>اسم المستخدم:</label>
-                <input type="text" id="usernameInput" placeholder="أدخل اسمك هنا..." autocomplete="off">
+            <div id="progressWrapper" class="progress-wrapper" style="display: none;">
+                <progress id="syncProgress" value="0" max="100"></progress>
+                <span id="progressText" class="progress-text">0%</span>
             </div>
-
-            <div class="input-group">
-                <label>كلمة المرور:</label>
-                <div class="password-container">
-                    <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور...">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">👁️</button>
-                </div>
-            </div>
-
-            <div class="remember-me">
-                <input type="checkbox" id="rememberMeCheck">
-                <label for="rememberMeCheck">حفظ تسجيل الدخول (تذكرني)</label>
-            </div>
-
-            <button class="login-btn" id="loginBtn" onclick="handleLogin()">دخول للمكتبة ✨</button>
-            <div id="errorMsg" class="error-msg">جارٍ التحقق...</div>
         </div>
     </div>
 
-    <div class="app-container">
-        <div class="sidebar">
-            <h3>أقسان المكتبة</h3>
-            <button class="tab-btn active" onclick="switchTab('all', event)"><span>🌐</span> الكل</button>
-            <button class="tab-btn" onclick="switchTab('upper', event)"><span>👆</span> علوي</button>
-            <button class="tab-btn" onclick="switchTab('base', event)"><span>👇</span> سفلي</button>
-            <button class="tab-btn" onclick="switchTab('corner', event)"><span>📐</span> ركن</button>
-            <button class="tab-btn" onclick="switchTab('tall', event)"><span>🚪</span> دواليب</button>
-            <button class="tab-btn" onclick="switchTab('frames', event)"><span>🛠️</span> شاسيهات ووشوش</button>
-            <button class="tab-btn" onclick="switchTab('cladding', event)"><span>🪵</span> تجاليد ومكملات</button>
-            <button class="tab-btn" onclick="switchTab('appliances', event)"><span>🍳</span> أجهزة كهربائية</button>
-            <button class="tab-btn" onclick="switchTab('decor', event)"><span>✨</span> اكسسوارات ديكور</button>
-        </div>
+    <!-- 3. مستوعبات الأقسام المختلفة -->
+    <div class="category-title">الوحدات السفلية</div>
+    <div id="baseContainer" class="cards-container"></div>
 
-        <div class="main-content">
-            <div class="header">
-                <h2>مكتبة محمد عادل الذكية</h2>
-                
-                <div class="offline-sync-box">
-                    <button id="syncBtn" onclick="downloadAllComponentsOffline()">تنزيل المكتبة للعمل بدون إنترنت 📥</button>
-                    <div id="progressWrapper">
-                        <progress id="syncProgress" value="0" max="100"></progress>
-                        <span id="progressText">0%</span>
-                    </div>
-                </div>
+    <div class="category-title">الوحدات العلوية</div>
+    <div id="upperContainer" class="cards-container"></div>
 
-                <span class="badge">الإصدار الاحترافي v1.0</span>
-            </div>
-
-            <div id="all" class="category-section active">
-                <h3 class="section-title"><span>🌐</span> جميع وحدات المكتبة</h3>
-                <div id="allContainer"></div>
-            </div>
-
-            <div id="upper" class="category-section"><div id="upperContainer"></div></div>
-            <div id="base" class="category-section"><div id="baseContainer"></div></div>
-            <div id="corner" class="category-section"><div id="cornerContainer"></div></div>
-            <div id="tall" class="category-section"><div id="tallContainer"></div></div>
-            <div id="frames" class="category-section"><div id="framesContainer"></div></div>
-            <div id="cladding" class="category-section"><div id="claddingContainer"></div></div>
-            <div id="appliances" class="category-section"><div id="appliancesContainer"></div></div>
-            <div id="decor" class="category-section"><div id="decorContainer"></div></div>
-        </div>
-    </div>
+    <div id="cornerContainer" class="cards-container"></div>
+    <div id="tallContainer" class="cards-container"></div>
+    <div id="framesContainer" class="cards-container"></div>
+    <div id="claddingContainer" class="cards-container"></div>
+    <div id="appliancesContainer" class="cards-container"></div>
+    <div id="decorContainer" class="cards-container"></div>
 
     <script>
-        // ==================== محرك التناثر الذهبي التفاعلي (Canvas Engine) ====================
-        const canvas = document.getElementById('goldCanvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
+        // مصفوفة البيانات كما تأتي من components.json مع وجود الأقواس
+        const globalComponentsList = [
+            { name: "وحدة سفلية 2 ضلفة (سفلي)", cat: "base", hidden: false },
+            { name: "وحدة سفلية 3 أدراج (سفلي)", cat: "base", hidden: false },
+            { name: "وحدة علوية 2 ضلفة (علوي)", cat: "upper", hidden: false }
+        ];
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        const missingFilesList = []; // قائمة الملفات غير المحملة أوفلاين
 
-        class Particle {
-            constructor(x, y, isBurst = false) {
-                this.x = x || Math.random() * canvas.width;
-                this.y = y || Math.random() * canvas.height;
-                this.size = Math.random() * (isBurst ? 3.5 : 2.2) + 0.8;
-                this.speedX = isBurst ? (Math.random() - 0.5) * 5 : (Math.random() - 0.5) * 0.8;
-                this.speedY = isBurst ? (Math.random() - 0.5) * 5 : (Math.random() - 0.5) * 0.8 - 0.3;
-                this.life = 1;
-                this.decay = isBurst ? Math.random() * 0.025 + 0.015 : Math.random() * 0.005 + 0.002;
-                this.color = `hsl(${42 + Math.random() * 12}, 100%, ${55 + Math.random() * 30}%)`;
-            }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                this.life -= this.decay;
-            }
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = Math.max(0, this.life);
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = '#ffd700';
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
+        // دوال إنشاء رابط GitHub للـ SKP والصور بالاسم الكامل (شاملاً القوسين)
+        function getSkpUrl(fileName) {
+            return `https://raw.githubusercontent.com/username/repo/main/models/${encodeURIComponent(fileName)}.skp`;
         }
 
-        for (let i = 0; i < 40; i++) particles.push(new Particle());
-
-        window.addEventListener('mousemove', (e) => {
-            if (Math.random() < 0.35) {
-                particles.push(new Particle(e.clientX, e.clientY, true));
-            }
-        });
-
-        window.addEventListener('click', (e) => {
-            for (let i = 0; i < 18; i++) {
-                particles.push(new Particle(e.clientX, e.clientY, true));
-            }
-        });
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (particles.length < 35 && Math.random() < 0.1) {
-                particles.push(new Particle());
-            }
-            for (let i = particles.length - 1; i >= 0; i--) {
-                particles[i].update();
-                particles[i].draw();
-                if (particles[i].life <= 0) particles.splice(i, 1);
-            }
-            requestAnimationFrame(animateParticles);
-        }
-        animateParticles();
-        // ======================================================================================
-
-        let globalComponentsList = [];
-        let missingFilesList = [];
-        let hardwareFingerprint = "";
-
-        function getSkpUrl(filename) { return `https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/${encodeURIComponent(filename)}.skp`; }
-        function getImgUrl(filename) { return `https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/images/${encodeURIComponent(filename)}.png`; }
-
-        function sendTelegramLog(username, status, registeredFP = "") {
-            if (window.sketchup && window.sketchup.send_to_telegram) {
-                window.sketchup.send_to_telegram(username, status, registeredFP);
-            }
+        function getImgUrl(fileName) {
+            return `https://raw.githubusercontent.com/username/repo/main/images/${encodeURIComponent(fileName)}.png`;
         }
 
-        function onReceiveFingerprint(fp) {
-            hardwareFingerprint = fp;
-            console.log("Hardware Fingerprint Loaded:", hardwareFingerprint);
-        }
-
-        async function loadComponents() {
-            const jsonUrl = "https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/components.json?nocache=" + Date.now();
-            
-            try {
-                const response = await fetch(jsonUrl);
-                if (response.ok) {
-                    const data = await response.json();
-                    globalComponentsList = data.components || [];
-                    renderAllComponents(globalComponentsList);
-                    checkOfflineFilesStatus();
-                }
-            } catch (error) {
-                const btn = document.getElementById('syncBtn');
-                btn.innerText = "⚡ العمل في وضع أوفلاين";
-                btn.disabled = true;
-            }
-        }
-
+        // دالة رص المكونات داخل الواجهة
         function renderAllComponents(componentsList) {
+            // تفريغ الأقسام قبل البدء
             ['upperContainer', 'baseContainer', 'cornerContainer', 'tallContainer', 'framesContainer', 'claddingContainer', 'appliancesContainer', 'decorContainer'].forEach(id => {
                 const c = document.getElementById(id); if (c) c.innerHTML = '';
             });
 
             componentsList.forEach(item => {
                 if (item.hidden) return;
+
+                // 1. رابط جيت هاب يستخدم الاسم الكامل المخزن في ملف components.json
                 const skpUrl = getSkpUrl(item.name);
                 const imgUrl = getImgUrl(item.name);
 
+                // 2. إزالة النص الموجود بين قوسين (...) من عنوان الكارت فقط
+                const displayName = item.name.replace(/\s*\([^)]*\)/g, '').trim();
+
                 const cardHTML = `
                     <div class="card" onclick="downloadAndInsert('${skpUrl}')" title="اضغط هنا لإدراج الوحدة في سكتش أب">
-                        <img src="${imgUrl}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/85?text=No+Image'">
+                        <img src="${imgUrl}" alt="${displayName}" onerror="this.src='https://via.placeholder.com/75/1e272e/ffd700?text=وحدة'">
                         <div class="info">
-                            <h3>${item.name}</h3>
+                            <h3>${displayName}</h3>
                             <p>مكون ديناميكي جاهز للبرنامج.</p>
                             <button class="dl-btn" onclick="event.stopPropagation(); downloadAndInsert('${skpUrl}')">📥 إدراج بالبرنامج</button>
                         </div>
                     </div>`;
 
+                // 3. إضافة الكارت للقائمة المناسبة بناءً على التصنيف
                 const container = document.getElementById(item.cat + 'Container');
                 if (container) container.innerHTML += cardHTML;
             });
-            updateAllCategory();
         }
 
-        function checkOfflineFilesStatus() {
-            if (!window.sketchup) return;
-            let urlsToCheck = [];
-            globalComponentsList.forEach(item => {
-                if (!item.hidden) {
-                    urlsToCheck.push(getSkpUrl(item.name));
-                    urlsToCheck.push(getImgUrl(item.name));
-                }
-            });
-            if (window.sketchup.check_missing_files) {
-                window.sketchup.check_missing_files(JSON.stringify(urlsToCheck));
-            }
-        }
-
-        function onMissingFilesResult(missingUrls) {
-            missingFilesList = missingUrls;
-            const btn = document.getElementById('syncBtn');
-            if (missingUrls.length === 0) {
-                btn.innerText = '✅ جميع الوحدات متوفرة أوفلاين';
-                btn.style.background = '#22c55e';
-                btn.style.color = '#fff';
-                btn.disabled = false;
-            } else {
-                btn.innerText = `📥 تنزيل (${missingUrls.length}) وحدات جديدة أوفلاين`;
-                btn.style.background = 'linear-gradient(135deg, #ffe066 0%, #ffd700 50%, #b8860b 100%)';
-                btn.style.color = '#111827';
-                btn.disabled = false;
-            }
-        }
-
+        // دالة تنزيل المكتبة للعمل أوفلاين
         function downloadAllComponentsOffline() {
-            if (missingFilesList.length === 0) {
-                checkOfflineFilesStatus();
-                return;
-            }
             const btn = document.getElementById('syncBtn');
             const wrapper = document.getElementById('progressWrapper');
             const progressBar = document.getElementById('syncProgress');
             const progressText = document.getElementById('progressText');
 
+            // إظهار شريط التقدم فوراً عند الضغط
+            btn.style.display = 'none';
+            wrapper.style.display = 'block';
             progressBar.value = 0;
             progressText.innerText = `0% (جاري بدء التحميل...)`;
-            wrapper.style.display = 'block';
-            btn.style.display = 'none';
 
+            // التفاعل مع SketchUp عبر Ruby أو العمل بالمحاكاة
             if (window.sketchup && window.sketchup.start_offline_download) {
-                window.sketchup.start_offline_download(JSON.stringify(missingFilesList));
+                const filesToDownload = (missingFilesList && missingFilesList.length > 0) 
+                    ? missingFilesList 
+                    : globalComponentsList.map(item => getSkpUrl(item.name));
+                    
+                window.sketchup.start_offline_download(JSON.stringify(filesToDownload));
+            } else {
+                // محاكاة التحميل في حال الاختبار على متصفح عادي
+                let current = 0;
+                const total = globalComponentsList.length;
+                const timer = setInterval(() => {
+                    current++;
+                    const percent = Math.round((current / total) * 100);
+                    onDownloadProgress(current, total, percent);
+                    
+                    if (current >= total) {
+                        clearInterval(timer);
+                        onDownloadComplete();
+                    }
+                }, 400);
             }
         }
 
@@ -559,8 +224,8 @@
             const progressBar = document.getElementById('syncProgress');
             const progressText = document.getElementById('progressText');
             
-            progressBar.value = percent;
-            progressText.innerText = `${percent}% (تم تحميل ${current} من ${total} وحدة)`;
+            if (progressBar) progressBar.value = percent;
+            if (progressText) progressText.innerText = `${percent}% (تم تحميل ${current} من ${total} وحدة)`;
         }
 
         function onDownloadComplete() {
@@ -568,182 +233,32 @@
             const wrapper = document.getElementById('progressWrapper');
             const progressText = document.getElementById('progressText');
             
-            progressText.innerText = '✅ تم تحميل جميع الوحدات بنجاح! (100%)';
+            if (progressText) progressText.innerText = '✅ تم حفظ جميع الوحدات أوفلاين بنجاح!';
+            
             setTimeout(() => {
-                wrapper.style.display = 'none';
-                btn.style.display = 'inline-block';
-                checkOfflineFilesStatus();
+                if (wrapper) wrapper.style.display = 'none';
+                if (btn) {
+                    btn.innerText = '✅ المكتبة محمولة أوفلاين';
+                    btn.style.background = '#22c55e';
+                    btn.style.color = '#ffffff';
+                    btn.style.display = 'inline-block';
+                }
             }, 2000);
         }
 
+        // دالة إدراج الوحدة داخل SketchUp
         function downloadAndInsert(url) {
-            if (window.sketchup && window.sketchup.download_component) {
-                window.sketchup.download_component(url);
-            }
-        }
-
-        async function fetchRemoteUsers() {
-            const url = "https://api.github.com/repos/dolaga10-lgtm/dola-library/contents/users.json?nocache=" + Date.now();
-            
-            const response = await fetch(url, { 
-                headers: { 
-                    'Accept': 'application/vnd.github.v3.raw',
-                    'Cache-Control': 'no-cache'
-                },
-                cache: "no-store" 
-            });
-
-            if (!response.ok) throw new Error("فشل الاتصال");
-            const config = await response.json();
-            return config.users || [];
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedUser = localStorage.getItem('dola_user');
-            const savedPass = localStorage.getItem('dola_pass');
-            if (savedUser && savedPass) {
-                document.getElementById('usernameInput').value = savedUser;
-                document.getElementById('passwordInput').value = savedPass;
-                document.getElementById('rememberMeCheck').checked = true;
-            }
-
-            if (window.sketchup && window.sketchup.get_device_fingerprint) {
-                window.sketchup.get_device_fingerprint();
-            }
-            loadComponents(); 
-            checkSavedSession();
-        });
-
-        async function checkSavedSession() {
-            const savedUser = localStorage.getItem('dola_user');
-            const savedPass = localStorage.getItem('dola_pass');
-
-            if (savedUser && savedPass) {
-                try {
-                    const usersList = await fetchRemoteUsers();
-                    const userObj = usersList.find(u => u.username.trim() === savedUser.trim() && u.pass.trim() === savedPass.trim());
-
-                    if (userObj) {
-                        const registeredFP = userObj.fingerprint ? userObj.fingerprint.trim() : "";
-                        const isFingerprintValid = registeredFP === "" || registeredFP === hardwareFingerprint;
-                        const expireDateMs = new Date(userObj.expire).getTime();
-                        const nowMs = Date.now();
-
-                        if (nowMs < expireDateMs && isFingerprintValid) {
-                            document.getElementById('loginOverlay').classList.add('hidden');
-                            updateUserUI(userObj.username, expireDateMs, nowMs);
-                            sendTelegramLog(savedUser, "⚡ دخول تلقائي مسجل مسبقاً", registeredFP);
-                        }
-                    }
-                } catch (e) {}
-            }
-        }
-
-        async function handleLogin() {
-            const username = document.getElementById('usernameInput').value.trim();
-            const password = document.getElementById('passwordInput').value.trim();
-            const rememberMe = document.getElementById('rememberMeCheck').checked;
-            const errorMsg = document.getElementById('errorMsg');
-            const loginBtn = document.getElementById('loginBtn');
-
-            if (!username || !password) {
-                errorMsg.innerText = "برجاء كتابة الاسم وكلمة المرور!";
-                errorMsg.style.display = "block";
-                sendTelegramLog(username || "غير مدخل", "❌ محاولة دخول بحقول فارغة");
-                return;
-            }
-
-            loginBtn.innerText = "جاري التحقق... ⏳";
-            loginBtn.disabled = true;
-
-            try {
-                const usersList = await fetchRemoteUsers();
-                const userObj = usersList.find(u => u.username.trim() === username && u.pass.trim() === password);
-
-                if (userObj) {
-                    const registeredFP = userObj.fingerprint ? userObj.fingerprint.trim() : "";
-                    const expireDateMs = new Date(userObj.expire).getTime();
-                    const nowMs = Date.now();
-
-                    if (nowMs >= expireDateMs) {
-                        errorMsg.innerText = "عفواً، انتهت فترة صلاحية هذا الاشتراك!";
-                        errorMsg.style.display = "block";
-                        sendTelegramLog(username, "❌ محاولة دخول باشتراك منتهي", registeredFP);
-                    } 
-                    else if (registeredFP !== "" && registeredFP !== hardwareFingerprint) {
-                        errorMsg.innerHTML = "🚫 <b>عفواً! هذا الحساب مقترن بجهاز آخر.</b><br>لا يمكنك الدخول من هذا الجهاز.";
-                        errorMsg.style.display = "block";
-                        sendTelegramLog(username, "⚠️ محاولة دخول مرفوضة (جهاز مختلف)", registeredFP);
-                    } 
-                    else {
-                        errorMsg.style.display = "none";
-                        document.getElementById('loginOverlay').classList.add('hidden');
-
-                        if (rememberMe) {
-                            localStorage.setItem('dola_user', username);
-                            localStorage.setItem('dola_pass', password);
-                        } else {
-                            localStorage.removeItem('dola_user');
-                            localStorage.removeItem('dola_pass');
-                        }
-
-                        updateUserUI(username, expireDateMs, nowMs);
-                        sendTelegramLog(username, "✅ دخول ناجح للمكتبة", registeredFP);
-                    }
-                } else {
-                    errorMsg.innerText = "اسم المستخدم أو كلمة المرور غير صحيحة!";
-                    errorMsg.style.display = "block";
-                    sendTelegramLog(username, "❌ محاولة دخول ببيانات خاطئة (اسم/كلمة سر)");
-                }
-            } catch (err) {
-                errorMsg.innerText = "خطأ في الاتصال بالسيرفر! تحقق من النت.";
-                errorMsg.style.display = "block";
-                sendTelegramLog(username, "⚠️ خطأ في الاتصال بالسيرفر أثناء الدخول");
-            } finally {
-                loginBtn.innerText = "دخول للمكتبة ✨";
-                loginBtn.disabled = false;
-            }
-        }
-
-        function updateUserUI(username, expireTimeMs, currentTimeMs) {
-            const banner = document.getElementById('subscriptionBanner');
-            const userText = document.getElementById('bannerUserText');
-            const daysCount = document.getElementById('bannerDaysCount');
-
-            const remainingDays = Math.max(0, Math.ceil((expireTimeMs - currentTimeMs) / (1000 * 60 * 60 * 24)));
-            banner.style.display = 'flex';
-            userText.innerText = `أهلاً بك م/ ${username} 👑`;
-
-            if (remainingDays <= 7) {
-                banner.classList.add('warning-red');
-                daysCount.innerText = `⚠️ باقي ${remainingDays} أيام فقط!`;
+            if (window.sketchup && window.sketchup.insert_component) {
+                window.sketchup.insert_component(url);
             } else {
-                banner.classList.remove('warning-red');
-                daysCount.innerText = `⭐ ${remainingDays} يوماً متبقية`;
+                console.log("جاري طلب إدراج الملف من الرابط:", url);
             }
         }
 
-        function togglePasswordVisibility() {
-            const passInput = document.getElementById('passwordInput');
-            passInput.type = passInput.type === 'password' ? 'text' : 'password';
-        }
-
-        function switchTab(tabId, event) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.category-section').forEach(sec => sec.classList.remove('active'));
-            if (event && event.currentTarget) event.currentTarget.classList.add('active');
-            const targetSection = document.getElementById(tabId);
-            if (targetSection) targetSection.classList.add('active');
-            if (tabId === 'all') updateAllCategory();
-        }
-
-        function updateAllCategory() {
-            const allContainer = document.getElementById('allContainer');
-            if (!allContainer) return;
-            allContainer.innerHTML = '';
-            const allCards = document.querySelectorAll('.category-section:not(#all) .card');
-            allCards.forEach(card => allContainer.appendChild(card.cloneNode(true)));
-        }
+        // استدعاء دالة الرسم فور تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAllComponents(globalComponentsList);
+        });
     </script>
 </body>
 </html>
