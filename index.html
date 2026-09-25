@@ -562,12 +562,16 @@
             progressText.innerText = `${percent}% (تم تحميل ${current} من ${total} ملف)`;
         }
 
-        function onDownloadComplete() {
+        function onDownloadComplete(failedCount) {
             const btn = document.getElementById('syncBtn');
             const wrapper = document.getElementById('progressWrapper');
             const progressText = document.getElementById('progressText');
-            
-            progressText.innerText = '✅ تم تحميل جميع الملفات بنجاح! (100%)';
+
+            if (failedCount && failedCount > 0) {
+                progressText.innerText = `⚠️ اكتملت المزامنة، لكن تعذر تحميل ${failedCount} ملف (تحقق من الاتصال بالنت).`;
+            } else {
+                progressText.innerText = '✅ تم تحميل جميع الملفات بنجاح! (100%)';
+            }
             setTimeout(() => {
                 wrapper.style.display = 'none';
                 btn.style.display = 'inline-block';
