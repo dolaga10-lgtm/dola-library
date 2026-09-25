@@ -70,9 +70,20 @@
         #syncBtn:disabled { cursor: not-allowed; opacity: 0.85; }
 
         #progressWrapper { display: none; width: 220px; }
-        progress { width: 100%; height: 12px; border-radius: 6px; overflow: hidden; border: none; }
-        progress::-webkit-progress-bar { background-color: rgba(15, 23, 42, 0.8); }
-        progress::-webkit-progress-value { background: linear-gradient(90deg, #22c55e, #16a34a); }
+        
+        /* تعديل ظهور شريط التقدم لمتصفح سكتش أب */
+        progress { 
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%; 
+            height: 12px; 
+            border-radius: 6px; 
+            overflow: hidden; 
+            border: none; 
+        }
+        progress::-webkit-progress-bar { background-color: rgba(15, 23, 42, 0.8); border-radius: 6px; }
+        progress::-webkit-progress-value { background: linear-gradient(90deg, #22c55e, #16a34a); border-radius: 6px; }
+        
         #progressText {
             font-size: 11px; color: #ffd700; margin-top: 4px; display: block;
             text-align: center; font-weight: bold; white-space: nowrap;
@@ -446,6 +457,7 @@
         let globalComponentsList = [];
         let missingFilesList = [];
         let hardwareFingerprint = "";
+        let isCheckingStatus = false;
 
         function getSkpUrl(filename) { return `https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/${encodeURIComponent(filename)}.skp`; }
         function getImgUrl(filename) { return `https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/images/${encodeURIComponent(filename)}.png`; }
@@ -470,12 +482,12 @@
                     const data = await response.json();
                     globalComponentsList = data.components || [];
                     renderAllComponents(globalComponentsList);
-                    checkOfflineFilesStatus();
+                    checkOfflineFilesStatus(false);
                 }
             } catch (error) {
                 const btn = document.getElementById('syncBtn');
                 btn.innerText = "⚡ العمل في وضع أوفلاين";
-                btn.disabled = true;
+                btn.disabled = false;
             }
         }
 
@@ -487,11 +499,8 @@
             componentsList.forEach(item => {
                 if (item.hidden) return;
 
-                // 1. استخدام الاسم الكامل كملف للتنزيل والروابط
                 const skpUrl = getSkpUrl(item.name);
                 const imgUrl = getImgUrl(item.name);
-
-                // 2. إزالة أي نص داخل أقواس من اسم العرض فقط
                 const displayName = item.name.replace(/\s*\([^)]*\)/g, '').trim();
 
                 const cardHTML = `
@@ -522,8 +531,26 @@
             });
         }
 
-        function checkOfflineFilesStatus() {
-            if (!window.sketchup) return;
+        function checkOfflineFilesStatus(isUserTriggered = false) {
+            if (!window.sketchup || !window.sketchup.check_missing_files) return;
+            
+            if (globalComponentsList.length === 0) {
+                if (isUserTriggered) {
+                    const btn = document.getElementById('syncBtn');
+                    btn.innerText = "⏳ جاري تحميل قائمة الوحدات...";
+                }
+                return;
+            }
+
+            if (isCheckingStatus) return;
+            isCheckingStatus = true;
+
+            const btn = document.getElementById('syncBtn');
+            if (isUserTriggered) {
+                btn.innerText = "🔍 جاري فحص الملفات المخزنة...";
+                btn.disabled = true;
+            }
+
             let urlsToCheck = [];
             globalComponentsList.forEach(item => {
                 if (!item.hidden) {
@@ -531,21 +558,22 @@
                     urlsToCheck.push(getImgUrl(item.name));
                 }
             });
-            if (window.sketchup.check_missing_files) {
-                window.sketchup.check_missing_files(JSON.stringify(urlsToCheck));
-            }
+
+            window.sketchup.check_missing_files(JSON.stringify(urlsToCheck));
         }
 
         function onMissingFilesResult(missingUrls) {
-            missingFilesList = missingUrls;
+            isCheckingStatus = false;
+            missingFilesList = missingUrls || [];
             const btn = document.getElementById('syncBtn');
-            if (missingUrls.length === 0) {
+
+            if (missingFilesList.length === 0) {
                 btn.innerText = '✅ جميع الوحدات متوفرة أوفلاين';
                 btn.style.background = '#22c55e';
                 btn.style.color = '#fff';
                 btn.disabled = false;
             } else {
-                btn.innerText = `📥 تنزيل (${missingUrls.length}) وحدات جديدة أوفلاين`;
+                btn.innerText = `📥 تنزيل (${missingFilesList.length}) ملفات جديدة أوفلاين`;
                 btn.style.background = 'linear-gradient(135deg, #ffe066 0%, #ffd700 50%, #b8860b 100%)';
                 btn.style.color = '#111827';
                 btn.disabled = false;
@@ -553,15 +581,26 @@
         }
 
         function downloadAllComponentsOffline() {
-            if (missingFilesList.length === 0) {
-                checkOfflineFilesStatus();
-                return;
-            }
             const btn = document.getElementById('syncBtn');
             const wrapper = document.getElementById('progressWrapper');
             const progressBar = document.getElementById('syncProgress');
             const progressText = document.getElementById('progressText');
 
+            // 1. إذا لم تكن قائمة الوحدات محملة بعد من السيرفر
+            if (globalComponentsList.length === 0) {
+                btn.innerText = "⏳ جاري جلب الوحدات أولاً...";
+                loadComponents().then(() => checkOfflineFilesStatus(true));
+                return;
+            }
+
+            // 2. إذا كانت القائمة فارغة أو تحتاج إعادة فحص
+            if (missingFilesList.length === 0) {
+                btn.innerText = "🔍 جاري إعادة فحص الملفات...";
+                checkOfflineFilesStatus(true);
+                return;
+            }
+
+            // 3. بدء عملية التنزيل
             progressBar.value = 0;
             progressText.innerText = `0% (جاري بدء التحميل...)`;
             wrapper.style.display = 'block';
@@ -577,7 +616,7 @@
             const progressText = document.getElementById('progressText');
             
             progressBar.value = percent;
-            progressText.innerText = `${percent}% (تم تحميل ${current} من ${total} وحدة)`;
+            progressText.innerText = `${percent}% (تم تحميل ${current} من ${total} ملف)`;
         }
 
         function onDownloadComplete() {
@@ -585,11 +624,11 @@
             const wrapper = document.getElementById('progressWrapper');
             const progressText = document.getElementById('progressText');
             
-            progressText.innerText = '✅ تم تحميل جميع الوحدات بنجاح! (100%)';
+            progressText.innerText = '✅ تم تحميل جميع الملفات بنجاح! (100%)';
             setTimeout(() => {
                 wrapper.style.display = 'none';
                 btn.style.display = 'inline-block';
-                checkOfflineFilesStatus();
+                checkOfflineFilesStatus(true);
             }, 2000);
         }
 
