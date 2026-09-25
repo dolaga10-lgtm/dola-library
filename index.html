@@ -450,6 +450,8 @@
 
         function getSkpUrl(filename) { return `https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/${encodeURIComponent(filename)}.skp`; }
         function getImgUrl(filename) { return `https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/images/${encodeURIComponent(filename)}.png`; }
+        // المسار المحلي للصورة داخل الكاش (dola_offline_cache/images)، نسبة لمكان هذا الملف (ui/index.html)
+        function getLocalImgUrl(filename) { return `../dola_offline_cache/images/${encodeURIComponent(filename)}.png`; }
 
         function sendTelegramLog(username, status, registeredFP = "") {
             if (window.sketchup && window.sketchup.send_to_telegram) {
@@ -528,11 +530,12 @@
 
                 const skpUrl = getSkpUrl(item.name);
                 const imgUrl = getImgUrl(item.name);
+                const localImgUrl = getLocalImgUrl(item.name);
                 const displayName = item.name.replace(/\s*\([^)]*\)/g, '').trim();
 
                 const cardHTML = `
                     <div class="card" onclick="downloadAndInsert('${skpUrl}')" title="اضغط هنا لإدراج الوحدة في سكتش أب">
-                        <img src="${imgUrl}" alt="${displayName}" onerror="this.src='https://via.placeholder.com/85?text=No+Image'">
+                        <img src="${localImgUrl}" data-remote-src="${imgUrl}" alt="${displayName}" onerror="handleCardImgError(this)">
                         <div class="info">
                             <h3>${displayName}</h3>
                             <p>مكون ديناميكي جاهز للبرنامج.</p>
@@ -556,6 +559,17 @@
                     allContainer.innerHTML += c.innerHTML;
                 }
             });
+        }
+
+        // سلسلة تحميل صورة الكارت: الكاش المحلي أولاً -> الإنترنت -> صورة بديلة
+        function handleCardImgError(imgEl) {
+            if (imgEl.dataset.fallbackStage === 'remote') {
+                imgEl.onerror = null;
+                imgEl.src = 'https://via.placeholder.com/85?text=No+Image';
+                return;
+            }
+            imgEl.dataset.fallbackStage = 'remote';
+            imgEl.src = imgEl.dataset.remoteSrc;
         }
 
         // ==================== دالة التنزيل المباشرة المعدلة ====================
