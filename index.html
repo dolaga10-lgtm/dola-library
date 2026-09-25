@@ -66,7 +66,13 @@
             transform: translateY(1px) scale(0.98);
             box-shadow: 0 2px 6px rgba(255, 215, 0, 0.3);
         }
-        #syncBtn:disabled { cursor: not-allowed; opacity: 0.85; }
+        /* شكل الزرار لما يكون متعطل */
+        #syncBtn:disabled { 
+            cursor: not-allowed; 
+            opacity: 0.9; 
+            transform: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
 
         #progressWrapper { display: none; width: 240px; text-align: center; }
         
@@ -80,7 +86,7 @@
             border: 1px solid rgba(255, 215, 0, 0.3); 
         }
         progress::-webkit-progress-bar { background-color: rgba(15, 23, 42, 0.8); border-radius: 7px; }
-        progress::-webkit-progress-value { background: linear-gradient(90deg, #ffe066, #22c55e); border-radius: 7px; }
+        progress::-webkit-progress-value { background: linear-gradient(90deg, #ffe066, #22c55e); border-radius: 7px; transition: width 0.1s linear; }
         
         #progressText {
             font-size: 11px; color: #ffd700; margin-top: 5px; display: block;
@@ -471,14 +477,13 @@
                     const data = await response.json();
                     globalComponentsList = data.components || [];
                     renderAllComponents(globalComponentsList);
-                    checkOfflineStatus();
+                    // لغينا الفحص التلقائي هنا عشان الزرار يفضل دايماً ذهبي وشغال أول ما تفتح
                 }
             } catch (error) {
                 console.log("Offline mode or network issue.");
             }
         }
 
-        // يبني قائمة كل روابط الملفات (JSON + كل السكيتشات + كل الصور)
         function buildOfflineUrlsList() {
             let urlsToDownload = [];
             urlsToDownload.push("https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/components.json");
@@ -489,33 +494,6 @@
                 }
             });
             return urlsToDownload;
-        }
-
-        // يسأل Ruby: كام ملف ناقص من الكاش حالياً؟ (بدون تحميل، مجرد فحص سريع)
-        function checkOfflineStatus() {
-            if (!globalComponentsList || globalComponentsList.length === 0) return;
-            const urls = buildOfflineUrlsList();
-            if (window.sketchup && window.sketchup.check_missing_count) {
-                window.sketchup.check_missing_count(JSON.stringify(urls));
-            }
-        }
-
-        // رد Ruby على السؤال أعلاه: يحدّث شكل الزرار حسب وجود ملفات جديدة أو لا
-        function onMissingCountResult(missingCount) {
-            const btn = document.getElementById('syncBtn');
-            if (!btn) return;
-            const wrapper = document.getElementById('progressWrapper');
-            if (wrapper && wrapper.style.display === 'block') return; // تحميل شغّال دلوقتي، متلمّعلوش الزرار
-
-            if (missingCount > 0) {
-                btn.innerText = `⬇️ تحميل ${missingCount} ملف جديد أوفلاين`;
-                btn.style.background = '';
-                btn.style.color = '';
-            } else {
-                btn.innerText = '✅ جميع الوحدات محفوظة أوفلاين';
-                btn.style.background = '#22c55e';
-                btn.style.color = '#fff';
-            }
         }
 
         function renderAllComponents(componentsList) {
@@ -558,7 +536,6 @@
             });
         }
 
-        // ==================== دالة التنزيل المباشرة المعدلة ====================
         function downloadAllComponentsOffline() {
             const btn = document.getElementById('syncBtn');
             const wrapper = document.getElementById('progressWrapper');
@@ -573,10 +550,11 @@
 
             const urlsToDownload = buildOfflineUrlsList();
 
+            // إخفاء الزرار وإظهار شريط التقدم أثناء الفحص والتحميل
             btn.style.display = 'none';
             wrapper.style.display = 'block';
             progressBar.value = 0;
-            progressText.innerText = `0% (جاري فحص الملفات الناقصة من أصل ${urlsToDownload.length} ملف...)`;
+            progressText.innerText = `0% (تهيئة الفحص...)`;
 
             if (window.sketchup && window.sketchup.start_offline_download) {
                 window.sketchup.start_offline_download(JSON.stringify(urlsToDownload));
@@ -587,14 +565,23 @@
             }
         }
 
+        function onScanProgress(current, total, percent) {
+            const progressBar = document.getElementById('syncProgress');
+            const progressText = document.getElementById('progressText');
+            
+            progressBar.value = percent;
+            progressText.innerText = `${percent}% (جاري فحص ${current} من ${total} ملف 🔍)`;
+        }
+
         function onDownloadProgress(current, total, percent) {
             const progressBar = document.getElementById('syncProgress');
             const progressText = document.getElementById('progressText');
             
             progressBar.value = percent;
-            progressText.innerText = `${percent}% (تم تحميل ${current} من ${total} ملف)`;
+            progressText.innerText = `${percent}% (تم تحميل ${current} من ${total} ملف 📥)`;
         }
 
+        // الدالة دي هتتحكم في شكل الزرار بعد ما كل حاجة تخلص
         function onDownloadComplete(failedCount) {
             const btn = document.getElementById('syncBtn');
             const wrapper = document.getElementById('progressWrapper');
@@ -602,14 +589,26 @@
 
             if (failedCount && failedCount > 0) {
                 progressText.innerText = `⚠️ اكتملت المزامنة، لكن تعذر تحميل ${failedCount} ملف (تحقق من الاتصال بالنت).`;
+                setTimeout(() => {
+                    wrapper.style.display = 'none';
+                    btn.style.display = 'inline-block';
+                    // في حالة الفشل، هنسيبه ذهبي وشغال عشان يقدر يعيد المحاولة
+                    btn.innerText = 'تنزيل المكتبة للعمل بدون إنترنت 📥';
+                    btn.disabled = false;
+                }, 2500);
             } else {
                 progressText.innerText = '✅ تم تحميل جميع الملفات بنجاح! (100%)';
+                setTimeout(() => {
+                    wrapper.style.display = 'none';
+                    btn.style.display = 'inline-block';
+                    
+                    // هنا بنحول الزرار للأخضر وبنعطله تماماً
+                    btn.innerText = '✅ جميع الوحدات محفوظة أوفلاين';
+                    btn.style.background = '#22c55e';
+                    btn.style.color = '#fff';
+                    btn.disabled = true;
+                }, 2500);
             }
-            setTimeout(() => {
-                wrapper.style.display = 'none';
-                btn.style.display = 'inline-block';
-                checkOfflineStatus(); // يحدّث نص الزرار حسب الوضع الفعلي بعد التحميل
-            }, 2500);
         }
 
         function downloadAndInsert(url) {
@@ -753,12 +752,17 @@
             const diffTime = expireDateMs - nowMs;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            bannerDaysCount.innerText = `${diffDays} أيام`;
-
-            if (diffDays <= 7) {
-                banner.classList.add('warning-red');
-            } else {
+            if (diffDays > 3650) {
+                bannerDaysCount.innerText = `مدى الحياة ♾️`;
                 banner.classList.remove('warning-red');
+            } else {
+                bannerDaysCount.innerText = `${diffDays} أيام`;
+                
+                if (diffDays <= 7) {
+                    banner.classList.add('warning-red');
+                } else {
+                    banner.classList.remove('warning-red');
+                }
             }
         }
 
