@@ -2,7 +2,7 @@
   "users": [
     {"username": "hafez", "pass": "2027", "expire": "2037-09-26", "fingerprint": "HW-D7688EF1AE85BCDA5"},
     {"username": "Loma", "pass": "1212", "expire": "2037-09-31", "fingerprint": "HW-7BE1B813260B7A106"},
-    {"username": "HAFEZ", "pass": "1212", "expire": "2037-11-20", "fingerprint": "HW-4C4C4544-0058-4D10-8036-B6C04F43483206:01 PM"},
+    {"username": "HAFEZ", "pass": "1212", "expire": "2037-11-20", "fingerprint": "HW-4C4C4544-0058-4D10-8036-B6C04F434832"},
     {"username": "Koko", "pass": "1212", "expire": "2037-12-01", "fingerprint": ""},
     {"username": "dola_user4", "pass": "pass@1004", "expire": "2026-12-10", "fingerprint": ""},
     {"username": "dola_user5", "pass": "pass@1005", "expire": "2027-01-10", "fingerprint": ""},
