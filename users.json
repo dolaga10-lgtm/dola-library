@@ -5,7 +5,7 @@
     {"username": "HAFEZ", "pass": "1212", "expire": "2037-11-20", "fingerprint": "HW-AC0A56AFDD821313C"},
     {"username": "Koko", "pass": "1212", "expire": "2037-12-01", "fingerprint": ""},
     {"username": "zara", "pass": "7795", "expire": "2037-12-10", "fingerprint": ""},
-    {"username": "medoo", "pass": "8520", "expire": "2027-01-10", "fingerprint": ""},
+    {"username": "medoo", "pass": "8520", "expire": "2037-01-10", "fingerprint": ""},
     {"username": "dola_user6", "pass": "pass@1006", "expire": "2027-02-15", "fingerprint": ""},
     {"username": "dola_user7", "pass": "pass@1007", "expire": "2027-03-01", "fingerprint": ""},
     {"username": "dola_user8", "pass": "pass@1008", "expire": "2027-03-20", "fingerprint": ""},
