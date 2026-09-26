@@ -1,7 +1,7 @@
 {
   "users": [
     {"username": "hafez", "pass": "2027", "expire": "2037-09-26", "fingerprint": "HW-D7688EF1AE85BCDA5"},
-    {"username": "dola_user1", "pass": "pass@1001", "expire": "2026-10-15", "fingerprint": ""},
+    {"username": "Loma", "pass": "1212", "expire": "2037-10-15", "fingerprint": ""},
     {"username": "dola_user2", "pass": "pass@1002", "expire": "2026-11-20", "fingerprint": ""},
     {"username": "dola_user3", "pass": "pass@1003", "expire": "2026-12-01", "fingerprint": ""},
     {"username": "dola_user4", "pass": "pass@1004", "expire": "2026-12-10", "fingerprint": ""},
