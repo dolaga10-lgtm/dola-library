@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>مكتبة محمد عادل الذكية للمطابخ - المعرض الثلاثي الأبعاد</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+
+        * { box-sizing: border-box; }
+        html, body { 
+            font-family: 'Tajawal', sans-serif; 
+            background-color: #e2e8f0; 
+            color: #1e293b; 
+            margin: 0; 
+            width: 100vw;
+            height: 100vh;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #floatingBubbleWidget {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            z-index: 999999;
+            cursor: grab;
+        }
+
+        #floatingBubbleWidget:active {
+            cursor: grabbing;
+        }
+
+        .bubble-core {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 2px solid #0284c7;
+            box-shadow: 0 0 20px rgba(2, 132, 199, 0.4), inset 0 0 10px rgba(2, 132, 199, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #38bdf8;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: pulseGlow 2.5s infinite ease-in-out;
+        }
+
+        .bubble-core:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 25px rgba(2, 132, 199, 0.8);
+        }
+
+        .bubble-core svg {
+            width: 28px;
+            height: 28px;
+            fill: #38bdf8;
+        }
+
+        .bubble-title {
+            font-size: 8px;
+            font-weight: bold;
+            color: #fff;
+            margin-top: 2px;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(2, 132, 199, 0.4); }
+            50% { box-shadow: 0 0 28px rgba(2, 132, 199, 0.7); }
+        }
+
+        #mainAppWrapper {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-color: #1e1b4b;
+        }
+
+        #renderCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 1;
+            outline: none;
+        }
+
+        .subscription-banner, .app-container, .login-overlay, #top-bar-custom, #reset-cam-btn, .unit-label, .category-label {
+            position: relative;
+            z-index: 2;
+        }
+
+        .unit-label {
+            position: absolute;
+            transform: translate(-50%, -100%);
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            color: #f8fafc;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            pointer-events: auto;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: none;
+            align-items: center;
+            gap: 6px;
+            opacity: 0;
+            max-width: 170px;
+            margin-top: -2px;
+            transition: opacity 0.15s ease, background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .unit-label span.unit-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 120px;
+            display: inline-block;
+        }
+
+        .unit-label.visible {
+            opacity: 1;
+            transform: translate(-50%, -100%);
+        }
+
+        .unit-label.success-flash {
+            background: rgba(16, 185, 129, 0.95) !important;
+            border-color: #34d399 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.8) !important;
+        }
+
+        .refresh-cache-btn {
+            pointer-events: auto;
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            color: #38bdf8;
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        .refresh-cache-btn:hover {
+            background: #38bdf8;
+            color: #0f172a;
+            transform: scale(1.15);
+        }
+
+        .refresh-cache-btn svg {
+            width: 10px;
+            height: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        @keyframes spinKeyframes {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .refresh-cache-btn.spinning svg {
+            animation: spinKeyframes 0.8s linear infinite;
+        }
+
+        .refresh-cache-btn.spinning {
+            pointer-events: none;
+            opacity: 0.8;
+            background: rgba(56, 189, 248, 0.4);
+        }
+
+        .toast-notification {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: rgba(16, 185, 129, 0.95);
+            color: #ffffff;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 13px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .category-label {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #d97706, #b45309);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 18px;
+            font-size: 11px;
+            font-weight: bold;
+            pointer-events: auto;
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            display: none;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .category-label:hover {
+            transform: translate(-50%, -50%) scale(1.08);
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+        }
+
+        .subscription-banner {
+            background: rgba(255, 255, 255, 0.85);
+            border-bottom: 1px solid rgba(2, 132, 199, 0.2); padding: 8px 18px;
+            display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #0369a1;
+            backdrop-filter: blur(10px);
+        }
+        .banner-info { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+        .banner-days { 
+            background: rgba(2, 132, 199, 0.1); 
+            border: 1px solid rgba(2, 132, 199, 0.3); 
+            padding: 2px 9px; 
+            border-radius: 12px; 
+            color: #0284c7;
+        }
+
+        .glass-panel {
+            background: rgba(30, 27, 75, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            color: #f8fafc;
+        }
+
+        #top-bar-custom {
+            position: absolute;
+            top: 45px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 9px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            z-index: 10;
+            transition: all 0.3s ease;
+            min-width: 420px;
+        }
+
+        .top-bar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        #top-bar-custom h1 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: #f8fafc;
+            transition: font-size 0.3s ease;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            color: #ffffff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+            transition: all 0.2s;
+            box-shadow: 0 3px 10px rgba(217, 119, 6, 0.25);
+            white-space: nowrap;
+        }
+        .action-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .mini-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mini-btn:hover {
+            background: #fbbf24;
+            color: #1e1b4b;
+        }
+
+        .sync-status-label {
+            font-size: 10px;
+            color: #fbbf24;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: right;
+            font-weight: 600;
+            min-height: 14px;
+            line-height: 14px;
+        }
+        .sync-progress-box {
+            background: rgba(255, 255, 255, 0.2);
+            height: 5px;
+            border-radius: 3px;
+            overflow: hidden;
+            width: 100%;
+            display: none;
+        }
+        .sync-progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #d97706, #10b981);
+            border-radius: 3px;
+            transition: width 0.1s ease-out;
+        }
+
+        #reset-cam-btn {
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
+            padding: 9px 16px;
+            font-size: 13px;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            font-family: 'Tajawal', sans-serif;
+            background: rgba(30, 27, 75, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #f8fafc;
+            font-weight: bold;
+        }
+        #reset-cam-btn:hover {
+            background: rgba(49, 46, 129, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .login-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.98) 100%);
+            backdrop-filter: blur(15px); z-index: 99999; display: flex; align-items: center; justify-content: center;
+        }
+        .login-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .login-box {
+            background: #1e293b;
+            border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 20px; padding: 35px; width: 360px; text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 30px rgba(56, 189, 248, 0.1);
+        }
+        .login-box h3 { margin: 0 0 8px 0; color: #38bdf8; font-size: 22px; }
+        .login-box p { margin: 0 0 22px 0; color: #94a3b8; font-size: 13px; }
+        .input-group { margin-bottom: 16px; text-align: right; }
+        .input-group label { display: block; font-size: 12px; color: #38bdf8; margin-bottom: 6px; font-weight: 600; }
+        .password-container { position: relative; display: flex; align-items: center; }
+        .password-container input { width: 100%; padding-left: 40px; }
+        .toggle-password { position: absolute; left: 10px; background: none; border: none; cursor: pointer; font-size: 16px; color: #38bdf8; }
+        .input-group input { width: 100%; padding: 11px 14px; background: #0f172a; border: 1px solid #475569; border-radius: 10px; color: #fff; font-size: 13px; outline: none; }
+        .remember-me { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; font-size: 13px; color: #cbd5e1; cursor: pointer; text-align: right; }
+        
+        .login-btn { 
+            width: 100%; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); 
+            color: #ffffff; border: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; 
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.25);
+        }
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(2, 132, 199, 0.4); }
+        .error-msg { color: #f87171; font-size: 12px; margin-top: 12px; display: none; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+    <div id="floatingBubbleWidget" title="اضغط للتكبير أو اسحب لنقل الأداة">
+        <div class="bubble-core">
+            <svg viewBox="0 0 24 24">
+                <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <div class="bubble-title">المكتبة</div>
+        </div>
+    </div>
+
+    <div id="mainAppWrapper">
+        <div id="loginOverlay" class="login-overlay">
+            <div class="login-box">
+                <h3>مكتبة محمد عادل</h3>
+                <p>الرجاء تسجيل الدخول للوصول للمكتبة</p>
+                
+                <div class="input-group">
+                    <label>اسم المستخدم:</label>
+                    <input type="text" id="usernameInput" placeholder="أدخل اسمك هنا..." autocomplete="off">
+                </div>
+
+                <div class="input-group">
+                    <label>كلمة المرور:</label>
+                    <div class="password-container">
+                        <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور...">
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">👁️</button>
+                    </div>
+                </div>
+
+                <div class="remember-me">
+                    <input type="checkbox" id="rememberMeCheck">
+                    <label for="rememberMeCheck">حفظ تسجيل الدخول (تذكرني)</label>
+                </div>
+
+                <button class="login-btn" id="loginBtn" onclick="handleLogin()">دخول للمكتبة ✨</button>
+                <div id="errorMsg" class="error-msg">جارٍ التحقق...</div>
+            </div>
+        </div>
+
+        <div id="subscriptionBanner" class="subscription-banner" style="display: none;">
+            <div class="banner-info">
+                <span>✨ مرحباً بك! حالة اشتراكك:</span>
+                <span id="bannerUserText">نشط</span>
+            </div>
+            <div class="banner-info">
+                <span>⏳ الوقت المتبقي:</span>
+                <span id="bannerDaysCount" class="banner-days">-- أيام</span>
+            </div>
+        </div>
+
+        <div id="top-bar-custom" class="glass-panel">
+            <div class="top-bar-header">
+                <h1>مكتبة محمد عادل الذكية للمطابخ</h1>
+                <div class="top-bar-actions">
+                    <button class="action-btn" id="btnSyncOffline" onclick="downloadAllComponentsOffline()">📥 تحميل أوفلاين</button>
+                    <button class="mini-btn" title="تصغير إلى أداة عائمة" onclick="requestCollapse()">🟡 فقاعة عائمة</button>
+                </div>
+            </div>
+            <div id="statusLabel" class="sync-status-label"></div>
+            <div id="progressBox" class="sync-progress-box">
+                <div id="progressBar" class="sync-progress-bar"></div>
+            </div>
+        </div>
+
+        <button id="reset-cam-btn" class="glass-panel" onclick="resetCamera()">
+            🎯 إعادة ضبط الكاميرا
+        </button>
+
+        <div id="toastNotification" class="toast-notification">✨ تم تحديث الوحدة بنجاح</div>
+
+        <div id="labelsContainer"></div>
+        <div id="categoriesLabelsContainer"></div>
+        <canvas id="renderCanvas"></canvas>
+    </div>
+
+    <!-- تم إزالة مكتبة الميه المعقدة تماماً -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/objects/Sky.js"></script>
+
+    <script>
+        let currentMode = 'fullscreen';
+
+        function setUIMode(mode) {
+            currentMode = mode;
+            const bubble = document.getElementById('floatingBubbleWidget');
+            const mainApp = document.getElementById('mainAppWrapper');
+
+            if (mode === 'bubble') {
+                mainApp.style.display = 'none';
+                bubble.style.display = 'flex';
+                document.body.style.backgroundColor = 'transparent';
+            } else {
+                bubble.style.display = 'none';
+                mainApp.style.display = 'flex';
+                document.body.style.backgroundColor = '#1e1b4b';
+                setTimeout(() => {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                }, 80);
+            }
+        }
+
+        function requestCollapse() {
+            if (window.sketchup && window.sketchup.request_collapse) {
+                window.sketchup.request_collapse();
+            }
+        }
+
+        function requestExpand() {
+            if (window.sketchup && window.sketchup.request_expand) {
+                window.sketchup.request_expand();
+            }
+        }
+
+        const bubbleWidget = document.getElementById('floatingBubbleWidget');
+        let isDraggingBubble = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let hasMovedSignificantly = false;
+
+        bubbleWidget.addEventListener('mousedown', (e) => {
+            isDraggingBubble = true;
+            hasMovedSignificantly = false;
+            dragStartX = e.screenX;
+            dragStartY = e.screenY;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDraggingBubble) return;
+            const dx = e.screenX - dragStartX;
+            const dy = e.screenY - dragStartY;
+
+            if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+                hasMovedSignificantly = true;
+            }
+
+            if (window.sketchup && window.sketchup.move_bubble_delta) {
+                window.sketchup.move_bubble_delta(dx, dy);
+            }
+            dragStartX = e.screenX;
+            dragStartY = e.screenY;
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isDraggingBubble) {
+                isDraggingBubble = false;
+                if (!hasMovedSignificantly) {
+                    requestExpand();
+                }
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                if (currentMode === 'fullscreen') {
+                    requestCollapse();
+                } else {
+                    requestExpand();
+                }
+            }
+        });
+
+        let hardwareFingerprint = "";
+        let globalComponentsList = [];
+        const interactableObjects = [];
+        const labelsData = [];
+        const categoryLabelsData = [];
+
+        let hoveredObject = null;
+        const raycasterHover = new THREE.Raycaster();
+        const mouseHoverVec = new THREE.Vector2();
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastNotification');
+            if (!toast) return;
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function sendTelegramLog(username, status, registeredFP = "") {
+            if (window.sketchup && window.sketchup.send_to_telegram) {
+                window.sketchup.send_to_telegram(username, status, registeredFP);
+            }
+        }
+
+        function onReceiveFingerprint(fp) {
+            hardwareFingerprint = fp;
+        }
+
+        async function fetchRemoteUsers() {
+            const url = "https://api.github.com/repos/dolaga10-lgtm/dola-library/contents/users.json?nocache=" + Date.now();
+            const response = await fetch(url, { 
+                headers: { 'Accept': 'application/vnd.github.v3.raw', 'Cache-Control': 'no-cache' },
+                cache: "no-store" 
+            });
+            if (!response.ok) throw new Error("فشل الاتصال");
+            const config = await response.json();
+            return config.users || [];
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedUser = localStorage.getItem('dola_user');
+            const savedPass = localStorage.getItem('dola_pass');
+            if (savedUser && savedPass) {
+                document.getElementById('usernameInput').value = savedUser;
+                document.getElementById('passwordInput').value = savedPass;
+                document.getElementById('rememberMeCheck').checked = true;
+            }
+
+            if (window.sketchup && window.sketchup.get_device_fingerprint) {
+                window.sketchup.get_device_fingerprint();
+            }
+            checkSavedSession();
+            loadServerComponents();
+        });
+
+        async function checkSavedSession() {
+            const savedUser = localStorage.getItem('dola_user');
+            const savedPass = localStorage.getItem('dola_pass');
+
+            if (savedUser && savedPass) {
+                try {
+                    const usersList = await fetchRemoteUsers();
+                    const userObj = usersList.find(u => u.username.trim() === savedUser.trim() && u.pass.trim() === savedPass.trim());
+
+                    if (userObj) {
+                        const registeredFP = userObj.fingerprint ? userObj.fingerprint.trim() : "";
+                        const isFingerprintValid = registeredFP === "" || registeredFP === hardwareFingerprint;
+                        const expireDateMs = new Date(userObj.expire).getTime();
+                        const nowMs = Date.now();
+
+                        if (nowMs < expireDateMs && isFingerprintValid) {
+                            document.getElementById('loginOverlay').classList.add('hidden');
+                            updateUserUI(userObj.username, expireDateMs, nowMs);
+                            sendTelegramLog(savedUser, "⚡ دخول تلقائي مسجل مسبقاً", registeredFP);
+                        }
+                    }
+                } catch (e) {}
+            }
+        }
+
+        async function handleLogin() {
+            const username = document.getElementById('usernameInput').value.trim();
+            const password = document.getElementById('passwordInput').value.trim();
+            const rememberMe = document.getElementById('rememberMeCheck').checked;
+            const errorMsg = document.getElementById('errorMsg');
+            const loginBtn = document.getElementById('loginBtn');
+
+            if (!username || !password) {
+                errorMsg.innerText = "برجاء كتابة الاسم وكلمة المرور!";
+                errorMsg.style.display = "block";
+                sendTelegramLog(username || "غير مدخل", "❌ محاولة دخول بحقول فارغة");
+                return;
+            }
+
+            loginBtn.innerText = "جاري التحقق... ⏳";
+            loginBtn.disabled = true;
+
+            try {
+                const usersList = await fetchRemoteUsers();
+                const userObj = usersList.find(u => u.username.trim() === username && u.pass.trim() === password);
+
+                if (userObj) {
+                    const registeredFP = userObj.fingerprint ? userObj.fingerprint.trim() : "";
+                    const expireDateMs = new Date(userObj.expire).getTime();
+                    const nowMs = Date.now();
+
+                    if (nowMs >= expireDateMs) {
+                        errorMsg.innerText = "عفواً، انتهت فترة صلاحية هذا الاشتراك!";
+                        errorMsg.style.display = "block";
+                        sendTelegramLog(username, "❌ محاولة دخول بااشتراك منتهي", registeredFP);
+                    } 
+                    else if (registeredFP !== "" && registeredFP !== hardwareFingerprint) {
+                        errorMsg.innerHTML = "🚫 <b>عفواً! هذا الحساب مقترن بجهاز آخر.</b><br>لا يمكنك الدخول من هذا الجهاز.";
+                        errorMsg.style.display = "block";
+                        sendTelegramLog(username, "⚠️ محاولة دخول مرفوضة (جهاز مختلف)", registeredFP);
+                    } 
+                    else {
+                        errorMsg.style.display = "none";
+                        document.getElementById('loginOverlay').classList.add('hidden');
+
+                        if (rememberMe) {
+                            localStorage.setItem('dola_user', username);
+                            localStorage.setItem('dola_pass', password);
+                        } else {
+                            localStorage.removeItem('dola_user');
+                            localStorage.removeItem('dola_pass');
+                        }
+
+                        updateUserUI(username, expireDateMs, nowMs);
+                        sendTelegramLog(username, "✅ دخول ناجح للمكتبة", registeredFP);
+                    }
+                } else {
+                    errorMsg.innerText = "اسم المستخدم أو كلمة المرور غير صحيحة!";
+                    errorMsg.style.display = "block";
+                    sendTelegramLog(username, "❌ محاولة دخول ببيانات خاطئة (اسم/كلمة سر)");
+                }
+            } catch (err) {
+                errorMsg.innerText = "خطأ في الاتصال بالسيرفر! تحقق من النت.";
+                errorMsg.style.display = "block";
+                sendTelegramLog(username, "⚠️ خطأ في الاتصال بالسيرفر أثناء الدخول");
+            } finally {
+                loginBtn.innerText = "دخول للمكتبة ✨";
+                loginBtn.disabled = false;
+            }
+        }
+
+        function updateUserUI(username, expireDateMs, nowMs) {
+            const banner = document.getElementById('subscriptionBanner');
+            const bannerUserText = document.getElementById('bannerUserText');
+            const bannerDaysCount = document.getElementById('bannerDaysCount');
+
+            if (!banner) return;
+            banner.style.display = 'flex';
+            bannerUserText.innerText = `${username} (نشط)`;
+
+            const diffTime = expireDateMs - nowMs;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 3650) {
+                bannerDaysCount.innerText = `مدى الحياة ♾️`;
+                banner.classList.remove('warning-red');
+            } else {
+                bannerDaysCount.innerText = `${diffDays} أيام`;
+                if (diffDays <= 7) {
+                    banner.classList.add('warning-red');
+                } else {
+                    banner.classList.remove('warning-red');
+                }
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const passInput = document.getElementById('passwordInput');
+            passInput.type = passInput.type === 'password' ? 'text' : 'password';
+        }
+
+        function downloadAllComponentsOffline() {
+            const btn = document.getElementById('btnSyncOffline');
+            if (btn) btn.disabled = true;
+
+            updateOfflineProgress(0, 0, 0, "🔍 جاري الفحص والتوصيل بالروبي...");
+
+            if (window.sketchup && window.sketchup.start_offline_download) {
+                window.sketchup.start_offline_download(JSON.stringify(globalComponentsList));
+            } else {
+                alert("خاصية التحميل أوفلاين تعمل داخل سكتش أب فقط.");
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        function updateOfflineProgress(percent, current, total, statusText) {
+            const label = document.getElementById('statusLabel');
+            const bar = document.getElementById('progressBar');
+            const box = document.getElementById('progressBox');
+
+            if (box) box.style.display = 'block';
+            if (label && statusText !== undefined) {
+                label.innerText = statusText;
+            }
+            if (bar) {
+                bar.style.width = percent + '%';
+            }
+        }
+
+        function onScanProgress(current, total, percent, fileName) {
+            updateOfflineProgress(percent, current, total, "🔍 جاري فحص: " + fileName);
+        }
+
+        function onDownloadProgress(current, total, percent, fileName) {
+            updateOfflineProgress(percent, current, total, "⬇️ جاري تنزيل: " + fileName);
+        }
+
+        function onOfflineDownloadComplete(isSuccess, totalDownloaded, message) {
+            const btn = document.getElementById('btnSyncOffline');
+            if (btn) btn.disabled = false;
+
+            if (isSuccess) {
+                updateOfflineProgress(100, 0, 0, "✅ " + message);
+                showToast("✨ " + message);
+            } else {
+                updateOfflineProgress(100, 0, 0, "❌ اكتمل مع وجود أخطاء في التنزيل");
+                showToast("⚠️ اكتمل التحديث مع وجود ملفات غير محملة");
+            }
+        }
+
+        function triggerRefreshComponent(event, skpUrlEnc, glbUrlEnc, compNameEnc) {
+            if (event) event.stopPropagation();
+
+            const skpUrl = decodeURIComponent(skpUrlEnc);
+            const glbUrl = decodeURIComponent(glbUrlEnc);
+            const compName = decodeURIComponent(compNameEnc);
+
+            if (confirm(`هل تريد مسح كاش الوحدة "${compName}" وإعادة تحميلها من السيرفر؟`)) {
+                const labelObj = labelsData.find(l => l.mesh.userData.name === compName);
+                if (labelObj) {
+                    const btn = labelObj.element.querySelector('.refresh-cache-btn');
+                    if (btn) btn.classList.add('spinning');
+                }
+
+                if (window.sketchup && window.sketchup.refresh_single_component) {
+                    window.sketchup.refresh_single_component(skpUrl, glbUrl, compName);
+                } else {
+                    setTimeout(() => onComponentRefreshed(true, compName), 1500);
+                }
+            }
+        }
+
+        function onComponentRefreshed(success, compName) {
+            const labelObj = labelsData.find(l => l.mesh.userData.name === compName);
+            if (!labelObj) return;
+
+            const btn = labelObj.element.querySelector('.refresh-cache-btn');
+            if (btn) btn.classList.remove('spinning');
+
+            if (success) {
+                labelObj.element.classList.add('success-flash');
+                showToast(`✨ تم تحديث الوحدة "${compName}" بنجاح!`);
+                setTimeout(() => {
+                    labelObj.element.classList.remove('success-flash');
+                }, 2500);
+            } else {
+                alert(`فشل تحديث الوحدة "${compName}". تحقق من اتصال الإنترنت.`);
+            }
+        }
+
+        window.addEventListener('contextmenu', (e) => e.preventDefault());
+        window.addEventListener('mousedown', (e) => { if(e.button === 1) e.preventDefault(); }, { passive: false });
+
+        // --- بيئة ثلاثية الأبعاد ---
+        const scene = new THREE.Scene();
+
+        const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 5000);
+        camera.position.set(0, 30, 52); 
+
+        const renderer = new THREE.WebGLRenderer({ 
+            canvas: document.getElementById('renderCanvas'), 
+            antialias: true, 
+            powerPreference: "high-performance" 
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        
+        // مسح الإطارات القديمة لمنع الشبحية والزغللة
+        renderer.setClearColor(0x1e1b4b, 1);
+        
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.25; 
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.09;
+        controls.rotateSpeed = 0.35; 
+        controls.enableZoom = false; 
+        controls.maxPolarAngle = Math.PI / 2 - 0.02; 
+        controls.target.set(0, 1.0, 0); 
+
+        controls.mouseButtons = {
+            LEFT: THREE.MOUSE.NONE,
+            MIDDLE: THREE.MOUSE.ROTATE, 
+            RIGHT: THREE.MOUSE.NONE 
+        };
+
+        let isCameraMoving = false;
+        controls.addEventListener('start', () => { isCameraMoving = true; hoveredObject = null; });
+        controls.addEventListener('end', () => { isCameraMoving = false; });
+
+        let isMiddleMouseDown = false;
+        let isManualPanning = false;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+
+        let isCategoryFocusing = false;
+        const categoryCamTarget = new THREE.Vector3();
+        const categoryLookTarget = new THREE.Vector3();
+
+        function focusCameraOnCategory(x, z) {
+            categoryCamTarget.set(x, 14, z + 20);
+            categoryLookTarget.set(x, 1.2, z);
+            isCategoryFocusing = true;
+        }
+
+        renderer.domElement.addEventListener('pointerdown', (e) => {
+            if (e.button === 1) { 
+                isMiddleMouseDown = true;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+                if (e.shiftKey) { 
+                    isManualPanning = true; 
+                    controls.enabled = false; 
+                }
+            }
+        });
+
+        window.addEventListener('pointermove', (e) => {
+            if (isCameraMoving || isManualPanning || isCategoryFocusing || isResetting) {
+                hoveredObject = null;
+            } else if (document.getElementById('loginOverlay').classList.contains('hidden')) {
+                mouseHoverVec.x = (e.clientX / window.innerWidth) * 2 - 1;
+                mouseHoverVec.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+                raycasterHover.setFromCamera(mouseHoverVec, camera);
+                const intersects = raycasterHover.intersectObjects(interactableObjects);
+
+                if (intersects.length > 0) {
+                    hoveredObject = intersects[0].object;
+                } else {
+                    hoveredObject = null;
+                }
+            } else {
+                hoveredObject = null;
+            }
+
+            if (isManualPanning) {
+                const deltaX = e.clientX - lastMouseX;
+                const deltaY = e.clientY - lastMouseY;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+
+                const targetDistance = camera.position.distanceTo(controls.target);
+                const fov = camera.fov * Math.PI / 180;
+                const panHeight = 2 * Math.tan(fov / 2) * targetDistance;
+                const panWidth = panHeight * camera.aspect;
+                
+                const panX = -(deltaX / window.innerWidth) * panWidth * 0.675;
+                const panY = (deltaY / window.innerHeight) * panHeight * 0.675;
+
+                const v = new THREE.Vector3(); v.setFromMatrixColumn(camera.matrix, 0); v.multiplyScalar(panX);
+                const u = new THREE.Vector3(); u.setFromMatrixColumn(camera.matrix, 1); u.multiplyScalar(panY);
+
+                camera.position.add(v).add(u);
+                controls.target.add(v).add(u);
+                controls.update();
+            } else if (isMiddleMouseDown) {
+                lastMouseX = e.clientX; 
+                lastMouseY = e.clientY;
+            }
+        });
+
+        window.addEventListener('pointerup', (e) => {
+            if (e.button === 1) { 
+                isMiddleMouseDown = false; 
+                isManualPanning = false; 
+                controls.enabled = true; 
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Shift' && isMiddleMouseDown && !isManualPanning) { 
+                isManualPanning = true; 
+                controls.enabled = false; 
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'Shift' && isManualPanning) { 
+                isManualPanning = false; 
+                controls.enabled = true; 
+            }
+        });
+
+        let isResetting = false;
+        const resetCamPos = new THREE.Vector3(0, 30, 52); 
+        const resetTargetPos = new THREE.Vector3(0, 1.0, 0); 
+        window.resetCamera = function() { 
+            isResetting = true; 
+            isCategoryFocusing = false;
+        };
+
+        const sky = new THREE.Sky();
+        sky.scale.setScalar(10000);
+        scene.add(sky);
+        
+        const skyUniforms = sky.material.uniforms;
+        skyUniforms['turbidity'].value = 10;
+        skyUniforms['rayleigh'].value = 3; 
+        skyUniforms['mieCoefficient'].value = 0.005;
+        skyUniforms['mieDirectionalG'].value = 0.8;
+        
+        const sun = new THREE.Vector3();
+        const phi = THREE.MathUtils.degToRad(88); 
+        const theta = THREE.MathUtils.degToRad(180);
+        sun.setFromSphericalCoords(1, phi, theta);
+        sky.material.uniforms['sunPosition'].value.copy(sun);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); 
+        scene.add(ambientLight);
+
+        const sunLight = new THREE.DirectionalLight(0xffedd5, 2.0);
+        sunLight.position.copy(sun).multiplyScalar(100);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 2048;
+        sunLight.shadow.mapSize.height = 2048;
+        sunLight.shadow.camera.near = 0.5;
+        sunLight.shadow.camera.far = 300;
+        sunLight.shadow.camera.left = -100;
+        sunLight.shadow.camera.right = 100;
+        sunLight.shadow.camera.top = 100;
+        sunLight.shadow.camera.bottom = -100;
+        sunLight.shadow.bias = -0.0005;
+        scene.add(sunLight);
+
+        const fillLight = new THREE.DirectionalLight(0xa5b4fc, 0.6); 
+        fillLight.position.set(-50, 50, -50);
+        scene.add(fillLight);
+
+        const cameraLight = new THREE.DirectionalLight(0xfffbeb, 0.8); 
+        cameraLight.position.set(0, 0, 1); 
+        camera.add(cameraLight); 
+        scene.add(camera);
+
+        // --- الأرضية الواسعة (بديل البحر) ---
+        // استبدال البحر بأرضية واسعة جداً بلون بيج داكن سادة مريحة جداً للأداء والعين
+        const groundGeometry = new THREE.PlaneGeometry(10000, 10000);
+        const groundMat = new THREE.MeshStandardMaterial({
+            color: 0x5c4b3c, // لون بيج داكن/ترابي سادة
+            roughness: 0.9,
+            metalness: 0.0
+        });
+        const vastGround = new THREE.Mesh(groundGeometry, groundMat);
+        vastGround.rotation.x = -Math.PI / 2;
+        vastGround.position.y = -0.5;
+        vastGround.receiveShadow = true;
+        scene.add(vastGround);
+
+        // --- المنصة الأساسية للوحدات ---
+        const platformMat = new THREE.MeshStandardMaterial({ 
+            color: 0x8a7b66, 
+            roughness: 0.7, 
+            metalness: 0.05 
+        });
+
+        const floorGeo = new THREE.BoxGeometry(80, 0.6, 36);
+        const floor = new THREE.Mesh(floorGeo, platformMat);
+        floor.position.set(0, 0.3, 0); 
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        const wallGeo = new THREE.BoxGeometry(80, 7.5, 0.5);
+        const backWall = new THREE.Mesh(wallGeo, platformMat);
+        backWall.position.set(0, 4.0, -17.75); 
+        backWall.castShadow = true;
+        backWall.receiveShadow = true;
+        scene.add(backWall);
+
+        const gltfLoader = new THREE.GLTFLoader();
+
+        async function loadServerComponents() {
+            const jsonUrl = "https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/components.json?nocache=" + Date.now();
+            try {
+                const response = await fetch(jsonUrl);
+                if (response.ok) {
+                    const data = await response.json();
+                    globalComponentsList = data.components || [];
+                    buildRefinedDisplayPanels(globalComponentsList);
+                }
+            } catch (error) {
+                console.log("فشل جلب الوحدات.");
+            }
+        }
+
+        function buildRefinedDisplayPanels(list) {
+            const labelsContainer = document.getElementById('labelsContainer');
+            const categoriesLabelsContainer = document.getElementById('categoriesLabelsContainer');
+            labelsContainer.innerHTML = '';
+            categoriesLabelsContainer.innerHTML = '';
+            labelsData.length = 0;
+            categoryLabelsData.length = 0;
+            interactableObjects.length = 0;
+
+            const categoriesMap = [
+                { key: 'upper', title: 'وحدات علوية 👆' },
+                { key: 'base', title: 'وحدات سفلية 👇' },
+                { key: 'corner', title: 'وحدات ركن 📐' },
+                { key: 'tall', title: 'دواليب 🚪' },
+                { key: 'frames', title: 'شاسيهات ووشوش 🛠️' },
+                { key: 'cladding', title: 'تجاليد ومكملات 🪵' },
+                { key: 'appliances', title: 'أجهزة كهربائية 🍳' },
+                { key: 'decor', title: 'اكسسوارات ديكور ✨' }
+            ];
+
+            const categoryWidth = 7.8; 
+            const totalCategories = categoriesMap.length;
+            let groupStartX = -((totalCategories - 1) * categoryWidth) / 2;
+
+            categoriesMap.forEach(catObj => {
+                const catItems = list.filter(i => {
+                    if (i.hidden) return false;
+                    if (catObj.key === 'base') {
+                        return i.cat === 'base' || !i.cat;
+                    }
+                    return i.cat === catObj.key;
+                });
+
+                const catCenterX = groupStartX + 2.1;
+                const catCenterZ = 0.5;
+
+                const categoryAnchor = new THREE.Object3D();
+                categoryAnchor.position.set(catCenterX, 4.8, -16.5);
+                scene.add(categoryAnchor);
+
+                const catLabelDiv = document.createElement('div');
+                catLabelDiv.className = 'category-label';
+                catLabelDiv.innerText = catObj.title;
+
+                catLabelDiv.onclick = (e) => {
+                    e.stopPropagation();
+                    focusCameraOnCategory(catCenterX, catCenterZ);
+                };
+
+                categoriesLabelsContainer.appendChild(catLabelDiv);
+                categoryLabelsData.push({ anchor: categoryAnchor, element: catLabelDiv });
+
+                const frontStartZ = 8.5; 
+                let itemX = groupStartX;
+                let itemZ = frontStartZ;
+                let inRow = 0;
+
+                catItems.forEach((item, idx) => {
+                    const displayName = item.name.replace(/\s*\([^)]*\)/g, '').trim();
+                    const skpUrl = `https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/${encodeURIComponent(item.name)}.skp`;
+                    const glbUrl = `https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/glb/${encodeURIComponent(item.name)}.glb`;
+
+                    const posX = itemX;
+                    const posZ = itemZ;
+
+                    const anchorObj = new THREE.Object3D();
+                    anchorObj.position.set(posX, 0.6, posZ);
+                    anchorObj.userData = { name: displayName, fileUrl: skpUrl, glbUrl: glbUrl };
+                    scene.add(anchorObj);
+
+                    const labelDiv = document.createElement('div');
+                    labelDiv.className = 'unit-label';
+                    labelDiv.innerHTML = `
+                        <span class="unit-title">${displayName}</span>
+                        <button class="refresh-cache-btn" title="مسح كاش الوحدة وإعادة تحميلها من السيرفر" onclick="triggerRefreshComponent(event, '${encodeURIComponent(skpUrl)}', '${encodeURIComponent(glbUrl)}', '${encodeURIComponent(displayName)}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.73-5.73"></path>
+                            </svg>
+                        </button>
+                    `;
+                    labelsContainer.appendChild(labelDiv);
+
+                    const labelObj = { 
+                        mesh: anchorObj, 
+                        element: labelDiv,
+                        isMouseOverElem: false,
+                        hideTimer: null
+                    };
+
+                    labelDiv.addEventListener('mouseenter', () => {
+                        labelObj.isMouseOverElem = true;
+                        if (labelObj.hideTimer) {
+                            clearTimeout(labelObj.hideTimer);
+                            labelObj.hideTimer = null;
+                        }
+                    });
+
+                    labelDiv.addEventListener('mouseleave', () => {
+                        labelObj.isMouseOverElem = false;
+                        scheduleHide(labelObj);
+                    });
+
+                    labelsData.push(labelObj);
+
+                    gltfLoader.load(glbUrl, (gltf) => {
+                        const model = gltf.scene;
+
+                        const rawBox = new THREE.Box3().setFromObject(model);
+                        const rawSize = rawBox.getSize(new THREE.Vector3());
+                        const maxRawDim = Math.max(rawSize.x, rawSize.y, rawSize.z);
+
+                        let uniformScale = 1.0;
+
+                        if (maxRawDim > 300) {
+                            uniformScale = 0.001 * 1.75; 
+                        } else if (maxRawDim > 15) {
+                            uniformScale = 0.0254 * 1.75;
+                        } else {
+                            uniformScale = 1.35;
+                        }
+
+                        const estimatedSize = maxRawDim * uniformScale;
+                        if (estimatedSize > 2.85) {
+                            uniformScale *= (2.85 / estimatedSize);
+                        }
+
+                        model.scale.set(uniformScale, uniformScale, uniformScale);
+                        
+                        const nName = displayName.replace(/\s+/g, '').toLowerCase();
+                        const isFridge = nName.includes("ثلاجة") || nName.includes("تلاجه") || nName.includes("ثلاجه");
+                        const is2Door = nName.includes("2باب") || nName.includes("٢باب");
+                        const isVertical = nName.includes("راسي") || nName.includes("رأسي");
+
+                        if (isFridge && is2Door && isVertical) {
+                            model.rotation.y = Math.PI; 
+                            model.updateMatrixWorld(true);
+                        }
+
+                        const scaledBox = new THREE.Box3().setFromObject(model);
+                        const center = scaledBox.getCenter(new THREE.Vector3());
+                        const finalSize = scaledBox.getSize(new THREE.Vector3());
+                        
+                        model.position.x = posX - center.x;
+                        model.position.y = (finalSize.y / 2) + 0.6 - center.y;
+                        model.position.z = posZ - center.z;
+
+                        model.traverse((child) => {
+                            if (child.isMesh) {
+                                child.castShadow = true;
+                                child.receiveShadow = true;
+
+                                // --- خطوط التحديد باللون الأسود كما طلبت ---
+                                const edgesGeo = new THREE.EdgesGeometry(child.geometry, 15); 
+                                const edgesMat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 1 });
+                                const edges = new THREE.LineSegments(edgesGeo, edgesMat);
+                                child.add(edges);
+
+                                if (child.material) {
+                                    const matName = (child.material.name || "").toLowerCase();
+                                    const meshName = (child.name || "").toLowerCase();
+                                    
+                                    const isGlass = child.material.transparent || 
+                                                    child.material.opacity < 0.95 || 
+                                                    matName.includes('glass') || 
+                                                    matName.includes('إزاز') || 
+                                                    matName.includes('ازاز') || 
+                                                    matName.includes('زجاج') || 
+                                                    meshName.includes('glass');
+
+                                    if (isGlass) {
+                                        child.material.transparent = true;
+                                        child.material.opacity = 0.88;
+                                        child.material.color.setHex(0x1e293b);
+                                        child.material.roughness = 0.05;
+                                        child.material.metalness = 0.0;
+                                    }
+                                    child.material.needsUpdate = true;
+                                }
+
+                                child.userData = { name: displayName, fileUrl: skpUrl, glbUrl: glbUrl, mainMesh: anchorObj, modelRef: model };
+                                interactableObjects.push(child);
+                            }
+                        });
+
+                        scene.add(model);
+                        anchorObj.userData.modelRef = model;
+                    }, undefined, (err) => {
+                        console.warn("فشل تحميل الموديل 3D للوحدة: " + displayName);
+                    });
+
+                    itemX += 2.1; 
+                    inRow++;
+                    if (inRow >= 3) {
+                        inRow = 0;
+                        itemX = groupStartX;
+                        itemZ -= 2.4; 
+                    }
+                });
+
+                groupStartX += categoryWidth;
+            });
+        }
+
+        window.addEventListener('wheel', (event) => {
+            if(isResetting) return; 
+            if (!document.getElementById('loginOverlay').classList.contains('hidden')) return;
+
+            event.preventDefault(); 
+            const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            const mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera({ x: mouseX, y: mouseY }, camera);
+            const distance = camera.position.distanceTo(controls.target);
+            
+            const zoomAmount = (event.deltaY > 0 ? -1 : 1) * distance * 0.0975; 
+            
+            const moveVector = raycaster.ray.direction.clone().multiplyScalar(zoomAmount);
+            camera.position.add(moveVector);
+            controls.target.add(moveVector);
+            controls.update();
+        }, { passive: false });
+
+        const raycasterClick = new THREE.Raycaster();
+        const mouseClickVec = new THREE.Vector2();
+
+        renderer.domElement.addEventListener('click', (event) => {
+            if (isResetting || !document.getElementById('loginOverlay').classList.contains('hidden')) return;
+
+            mouseClickVec.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseClickVec.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycasterClick.setFromCamera(mouseClickVec, camera);
+            const intersects = raycasterClick.intersectObjects(interactableObjects);
+
+            if (intersects.length > 0) {
+                const object = intersects[0].object;
+                if (window.sketchup && window.sketchup.download_component) {
+                    window.sketchup.download_component(object.userData.fileUrl);
+                } else {
+                    alert("سيتم إدراج الوحدة فوراً في سكتش أب: " + object.userData.name);
+                }
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if (currentMode === 'fullscreen') {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        });
+
+        function hideSmartLabelInstant(item) {
+            if (item.hideTimer) {
+                clearTimeout(item.hideTimer);
+                item.hideTimer = null;
+            }
+            item.element.classList.remove('visible');
+            item.element.style.display = 'none';
+        }
+
+        function scheduleHide(item) {
+            if (!item.hideTimer) {
+                item.hideTimer = setTimeout(() => {
+                    hideSmartLabelInstant(item);
+                }, 150);
+            }
+        }
+
+        function updateLabelsPositions() {
+            if (currentMode === 'bubble') return;
+            const tempVector = new THREE.Vector3();
+            const tempBox = new THREE.Box3();
+
+            categoryLabelsData.forEach(item => {
+                item.anchor.getWorldPosition(tempVector);
+                const vector = tempVector.clone().project(camera);
+                if (vector.z < 1) {
+                    const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+                    const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
+                    item.element.style.display = 'block';
+                    item.element.style.left = `${x}px`;
+                    item.element.style.top = `${y}px`;
+                } else {
+                    item.element.style.display = 'none';
+                }
+            });
+
+            labelsData.forEach(item => {
+                const isHovered3D = (hoveredObject && (
+                    hoveredObject === item.mesh || 
+                    (hoveredObject.userData && hoveredObject.userData.name === item.mesh.userData.name)
+                ));
+                const isHoveredSelf = item.isMouseOverElem;
+
+                if (hoveredObject && (hoveredObject !== item.mesh && hoveredObject.userData.name !== item.mesh.userData.name) && !isHoveredSelf) {
+                    hideSmartLabelInstant(item);
+                    return;
+                }
+
+                const targetObj = (item.mesh.userData && item.mesh.userData.modelRef) ? item.mesh.userData.modelRef : item.mesh;
+                tempBox.setFromObject(targetObj);
+                tempVector.x = (tempBox.min.x + tempBox.max.x) / 2;
+                tempVector.y = tempBox.max.y + 0.12; 
+                tempVector.z = (tempBox.min.z + tempBox.max.z) / 2;
+
+                if (isHovered3D || isHoveredSelf) {
+                    if (item.hideTimer) {
+                        clearTimeout(item.hideTimer);
+                        item.hideTimer = null;
+                    }
+
+                    const vector = tempVector.clone().project(camera);
+                    if (vector.z < 1) {
+                        const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+                        const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
+                        
+                        if (item.element.style.display === 'none' || item.element.style.display === '') {
+                            item.element.style.display = 'flex';
+                            setTimeout(() => item.element.classList.add('visible'), 10);
+                        }
+                        item.element.style.left = `${x}px`;
+                        item.element.style.top = `${y}px`;
+                    } else {
+                        hideSmartLabelInstant(item);
+                    }
+                } else {
+                    if (item.element.classList.contains('visible') || item.element.style.display === 'flex') {
+                        const vector = tempVector.clone().project(camera);
+                        if (vector.z < 1) {
+                            const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+                            const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
+                            item.element.style.left = `${x}px`;
+                            item.element.style.top = `${y}px`;
+                        }
+                        scheduleHide(item);
+                    }
+                }
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (currentMode === 'bubble') return;
+
+            if (isResetting) {
+                camera.position.lerp(resetCamPos, 0.08); 
+                controls.target.lerp(resetTargetPos, 0.08); 
+                if (camera.position.distanceTo(resetCamPos) < 1.0) {
+                    isResetting = false;
+                }
+            }
+
+            if (isCategoryFocusing) {
+                camera.position.lerp(categoryCamTarget, 0.12);
+                controls.target.lerp(categoryLookTarget, 0.12);
+                if (camera.position.distanceTo(categoryCamTarget) < 0.5) {
+                    isCategoryFocusing = false;
+                }
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+            updateLabelsPositions();
+        }
+        animate();
+    </script>
+</body>
+</html>
