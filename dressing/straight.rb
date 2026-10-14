@@ -11,6 +11,7 @@ require 'fileutils'
 require 'base64'
 require 'digest'
 require 'openssl'
+require 'tempfile'
 
 unless Sketchup::Entities.method_defined?(:empty?)
   class Sketchup::Entities
@@ -20,7 +21,7 @@ unless Sketchup::Entities.method_defined?(:empty?)
   end
 end
 
-module MHDESIGN
+module DolaSmartLibraryPlugin
   module DressingDesigner
     extend self
 
