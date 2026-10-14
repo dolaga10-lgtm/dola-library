@@ -25,7 +25,7 @@ unless Sketchup::Entities.method_defined?(:empty?)
   end
 end
 
-module DolaSmartLibraryPlugin
+module MHDESIGN
   module DressingCornerDesigner
     extend self
 
@@ -44,7 +44,7 @@ module DolaSmartLibraryPlugin
     TITLE = 'MHDESIGN - تصميم دريسنج زاوية'.freeze
     PREF_KEY = 'MHDESIGN_DRESSING_DESIGNER_V2'.freeze
     VERSION = '10.56.54'.freeze
-    LOGO_URL = ''.freeze
+    LOGO_URL = 'https://mhdesign-eg.com/SKETCHUP/components/logo3.png'.freeze
     PART_SUFFIX = 'BASE_UNIT_1'.freeze
     BADGE_ARABIC = {
       'MAIN_CARCASS'=>'الشاسيه الرئيسي','PARTITION'=>'قاطع','SHELF'=>'رف',
@@ -61,13 +61,10 @@ module DolaSmartLibraryPlugin
       'WALL_RELIEF'=>'خلعة حائط','REDUCED_DEPTH'=>'عمق مخفّض','FORWARD_BACK'=>'ضهر متقدم'
     }.freeze
     INTERIOR_MARK = 'MHD_DRESSING_INTERIORS'.freeze
-    DRESSING_SYSTEM = 'DOLA_DRESSING'.freeze
-    # توقيعات الوحدات القديمة (المحفوظة في موديلات سابقة) تظل مقبولة.
-    LEGACY_DRESSING_SYSTEMS = ['MHDESIGN_DRESSING'].freeze
-    LEGACY_CORNER_UNIT_SIGNATURES = ['MHD_DRESSING_CORNER_V1'].freeze
+    DRESSING_SYSTEM = 'MHDESIGN_DRESSING'.freeze
     CORNER_UNIT_TYPE = 'corner'.freeze
-    CORNER_UNIT_SIGNATURE = 'DOLA_DRESSING_CORNER_V1'.freeze
-    DRESSING_SKP_BASE_URL = 'https://raw.githubusercontent.com/dolaga10-lgtm/dola-library/refs/heads/main/dressing'.freeze
+    CORNER_UNIT_SIGNATURE = 'MHD_DRESSING_CORNER_V1'.freeze
+    DRESSING_SKP_BASE_URL = 'https://mhdesign-eg.com/SKETCHUP022/skp/dressing'.freeze
     BUTTERFLY_SKP_URL = "#{DRESSING_SKP_BASE_URL}/Corner%20Brace%20Butterfly.skp".freeze
     SHELF_SUPPORT_SKP_URL = "#{DRESSING_SKP_BASE_URL}/Shelf%20support.skp".freeze
     ELITA_SKP_URL = "#{DRESSING_SKP_BASE_URL}/minifix.skp".freeze
@@ -97,7 +94,7 @@ module DolaSmartLibraryPlugin
     class HingeDoorMotionObserver < Sketchup::EntityObserver
       def onChangeEntity(entity)
         UI.start_timer(0, false) do
-          DolaSmartLibraryPlugin::DressingCornerDesigner.sync_hinge_accessories(entity) if entity && entity.valid?
+          MHDESIGN::DressingCornerDesigner.sync_hinge_accessories(entity) if entity && entity.valid?
         end
       rescue
         nil
@@ -107,7 +104,7 @@ module DolaSmartLibraryPlugin
     class DrawerSlideMotionObserver < Sketchup::EntityObserver
       def onChangeEntity(entity)
         UI.start_timer(0, false) do
-          DolaSmartLibraryPlugin::DressingCornerDesigner.sync_drawer_slide(entity) if entity && entity.valid?
+          MHDESIGN::DressingCornerDesigner.sync_drawer_slide(entity) if entity && entity.valid?
         end
       rescue
         nil
@@ -129,9 +126,9 @@ module DolaSmartLibraryPlugin
       system = owners.map { |o| o.get_attribute('MHD_DRESSING', 'SYSTEM', nil) }.compact.first
       unit_type = owners.map { |o| o.get_attribute('MHD_DRESSING', 'UNIT_TYPE', nil) }.compact.first
       signature = owners.map { |o| o.get_attribute('MHD_DRESSING', 'UNIT_SIGNATURE', nil) }.compact.first
-      ([DRESSING_SYSTEM] + LEGACY_DRESSING_SYSTEMS).include?(system.to_s) &&
+      system.to_s == DRESSING_SYSTEM &&
         unit_type.to_s == CORNER_UNIT_TYPE &&
-        ([CORNER_UNIT_SIGNATURE] + LEGACY_CORNER_UNIT_SIGNATURES).include?(signature.to_s)
+        signature.to_s == CORNER_UNIT_SIGNATURE
     rescue
       false
     end
@@ -149,11 +146,8 @@ module DolaSmartLibraryPlugin
       false
     end
 
-    def selected_wardrobe(preferred = nil)
-      candidates = []
-      candidates << preferred if preferred
-      candidates.concat(Sketchup.active_model.selection.grep(Sketchup::ComponentInstance))
-      candidates.compact.uniq.find { |item| item.valid? && corner_unit_signed?(item) }
+    def selected_wardrobe
+      Sketchup.active_model.selection.grep(Sketchup::ComponentInstance).find { |item| corner_unit_signed?(item) }
     end
 
     def dc_value(item, key, fallback)
@@ -184,7 +178,7 @@ module DolaSmartLibraryPlugin
     DRESSING_UNITS_CACHE_ROOT_DIR = 'A9A6D99_5957844_88980'.freeze
     DRESSING_CACHE_SECRET_SALT = 'MHDESIGN_REMOTE_CACHE_V1'.freeze
     DRESSING_CACHE_HMAC_SALT   = 'MHDESIGN_REMOTE_CACHE_HMAC_V1'.freeze
-    DRESSING_ASSET_ALLOWED_HOSTS = ['raw.githubusercontent.com'].freeze
+    DRESSING_ASSET_ALLOWED_HOSTS = ['mhdesign-eg.com', 'www.mhdesign-eg.com'].freeze
 
     def dressing_units_cache_root_dir
       dir = File.join(Dir.tmpdir, DRESSING_UNITS_CACHE_ROOT_DIR)
@@ -12061,7 +12055,7 @@ module DolaSmartLibraryPlugin
     class DressingMotionAppObserver < Sketchup::AppObserver
       def onOpenModel(model)
         UI.start_timer(0.8, false) do
-          DolaSmartLibraryPlugin::DressingCornerDesigner.restore_motion_links(model)
+          MHDESIGN::DressingCornerDesigner.restore_motion_links(model)
         end
       rescue
         nil
@@ -12069,7 +12063,7 @@ module DolaSmartLibraryPlugin
 
       def onNewModel(model)
         UI.start_timer(0.8, false) do
-          DolaSmartLibraryPlugin::DressingCornerDesigner.restore_motion_links(model)
+          MHDESIGN::DressingCornerDesigner.restore_motion_links(model)
         end
       rescue
         nil
@@ -16356,7 +16350,7 @@ module DolaSmartLibraryPlugin
 .creation-loader{width:min(450px,82vw);padding:24px;background:#0b1b27;border:1px solid #355365;border-radius:15px;box-shadow:0 18px 60px rgba(0,0,0,.6);text-align:center;direction:rtl}.creation-loader-title{font-size:21px;font-weight:900;color:#fff;letter-spacing:.5px}.creation-loader-text{margin:18px 0;color:#d8e8ef;font-size:14px;font-weight:800}.creation-progress-track{height:10px;border:1px solid #355365;border-radius:20px;background:#07131d;overflow:hidden}.creation-progress-bar{width:4%;height:100%;border-radius:20px;background:linear-gradient(90deg,#25a94f,#4de37a);transition:width .28s ease}.creation-progress-value{margin-top:9px;color:#91aaba;font-size:12px}
 .structure-group{margin:0 0 8px;border:1px solid #294557;border-radius:9px;background:#0a1a25;overflow:hidden}.structure-group summary{list-style:none;padding:10px 12px;background:#0e2230;color:#8ad8ff;font-size:13px;font-weight:900;cursor:pointer}.structure-group summary::-webkit-details-marker{display:none}.structure-group summary:before{content:'▼';display:inline-block;margin-left:7px;color:#4de37a;font-size:10px}.structure-group:not([open]) summary:before{content:'◀'}.structure-group-body{padding:9px}.global-settings-button{margin-top:8px}
 </style></head><body><div class="app">
-<div class="head">#{LOGO_URL.to_s.empty? ? '' : "<img class=\"logo\" src=\"#{LOGO_URL}\">"}<div class="title">تصميم الدريسنج<span class="sub">كوّن الشاسيه والتقسيمات وشاهد النتيجة قبل الإنشاء</span></div></div>
+<div class="head"><img class="logo" src="#{LOGO_URL}"><div class="title">تصميم الدريسنج<span class="sub">كوّن الشاسيه والتقسيمات وشاهد النتيجة قبل الإنشاء</span></div></div>
 <div class="main">
  <div class="panel options"><div class="panel-title">الاختيارات</div><div id="optionsEditor" class="editor options-view-structure">
   <div style="border:1px solid #4de37a;border-radius:8px;padding:9px;margin-bottom:10px;background:#0d2a22"><div class="field" style="margin:0"><label style="color:#4de37a;font-size:12px">اسم أو رقم الوحدة</label><input id="unitName" type="text" maxlength="80" value="#{html_escape(data['unit_name'] || 'دولاب دريسنج')}" placeholder="مثال: وحدة سفلية 4 درج"><div class="compact-note" style="margin-top:5px">سيُكتب هذا الاسم بين قوسين في Definition كل قطعة.</div></div><button class="add global-settings-button" onclick="openBoardRules()">▦ ضوابط مقاسات الألواح والشريط</button></div>
@@ -17555,13 +17549,13 @@ updateJoineryOptions();updateTopTypeNote();updateAccessoryEditor();renderTemplat
       HTML
     end
 
-    def show_dialog(preferred_unit = nil)
+    def show_dialog
       if @dialog
         @dialog.bring_to_front rescue nil
         return
       end
       restore_motion_links(Sketchup.active_model)
-      @current_wardrobe = selected_wardrobe(preferred_unit)
+      @current_wardrobe = selected_wardrobe
       unless @current_wardrobe
         UI.messagebox('حدد وحدة دريسنج زاوية موقعة أولاً. هذه الأداة لا تعمل على الوحدة المستقيمة.')
         return
@@ -17592,20 +17586,6 @@ updateJoineryOptions();updateTopTypeNote();updateAccessoryEditor();renderTemplat
       end
       @dialog.set_on_closed { close_doors; @dialog = nil; @current_wardrobe = nil }
       @dialog.show
-      true
-    end
-
-    # مداخل اللانشر (dola_library.rb) — كلها تحترم توقيع نوع الوحدة.
-    def open_for_selection(unit = nil)
-      show_dialog(unit)
-    end
-
-    def open_for_component(unit = nil)
-      show_dialog(unit)
-    end
-
-    def open_for_unit(unit = nil)
-      show_dialog(unit)
     end
 
     def door_entities
